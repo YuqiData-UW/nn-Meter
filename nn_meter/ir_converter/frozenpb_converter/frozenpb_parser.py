@@ -52,7 +52,7 @@ class FrozenPbParser:
         ]
         stripped_nodes_keywords_tf2 = ["Identity"]
         graph = model_graph.get_graph()
-        removed_node = []
+        removed_node = set()
         for key, value in graph.items():
             if "attr" in value.keys():
                 if value["attr"]["type"] in stripped_nodes_type:
@@ -60,14 +60,25 @@ class FrozenPbParser:
                         stripped_nodes_keywords += stripped_nodes_keywords_tf2
                     for kw in stripped_nodes_keywords:
                         if kw in key:
-                            removed_node.append(key)
+                            removed_node.add(key)
                             break
                 if value["attr"]["type"] in stripped_nodes_type_all:
-                    removed_node.append(key)
-            elif IS_TF2 and key[0] == "^":
-                removed_node.append(key)
+                    removed_node.add(key)
+            elif IS_TF2:
+                if key[0] == "^":
+                    removed_node.add(key)
         for key in removed_node:
             del graph[key]
+        if IS_TF2:
+            for key in graph:
+                if "inbounds" in graph[key]:
+                    graph[key]["inbounds"] = [
+                        n for n in graph[key]["inbounds"] if n not in removed_node
+                    ]
+                if "outbounds" in graph[key]:
+                    graph[key]["outbounds"] = [
+                        n for n in graph[key]["outbounds"] if n not in removed_node
+                    ]
 
         model_graph.refresh()
 
@@ -97,10 +108,12 @@ class FrozenPbParser:
                         logging.info("Find split main node %s." % graph_node)
                         split_node_name = graph_node
                         for node_name in graph.keys():
-                            idx = re.findall(r"%s:(\d+)" % split_node_name, node_name)
+                            idx = re.findall(r"%s:(\d+)" %
+                                             split_node_name, node_name)
                             if len(idx) > 0:
                                 idx = int(idx[0])
-                                logging.info("Find split child node %s." % node_name)
+                                logging.info(
+                                    "Find split child node %s." % node_name)
                                 graph[graph_node]["outbounds"] += graph[node_name][
                                     "outbounds"
                                 ]
@@ -171,7 +184,8 @@ class FrozenPbParser:
 
         for attr_name in node.attr.keys():
             if attr_name in list_i_nodes:
-                attr_dict[attr_name] = [int(a) for a in node.attr[attr_name].list.i]
+                attr_dict[attr_name] = [int(a)
+                                        for a in node.attr[attr_name].list.i]
                 continue
 
             if attr_name in str_nodes:
@@ -215,7 +229,8 @@ class FrozenPbParser:
             for target_node in self.graph.node:
                 if "regex" in attr_as_node[node.op].keys():
                     node_attr = re.findall(
-                        attr_as_node[node.op]["node_name"](node.name), target_node.name
+                        attr_as_node[node.op]["node_name"](
+                            node.name), target_node.name
                     )
                     if len(node_attr) > 0:
                         logging.info("Find regex matching node %s" % node.name)

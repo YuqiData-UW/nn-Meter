@@ -2,9 +2,9 @@
 # Licensed under the MIT license.
 
 try:
-from logging import Formatter, StreamHandler
-import pkg_resources  # part of setuptools
-__version__ = pkg_resources.require("nn-meter")[0].version
+    from logging import Formatter, StreamHandler
+    import pkg_resources  # part of setuptools
+    __version__ = pkg_resources.require("nn-meter")[0].version
 except ModuleNotFoundError:
     __version__ = 'UNKNOWN'
 

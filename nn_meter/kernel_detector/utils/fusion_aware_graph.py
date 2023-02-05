@@ -18,10 +18,12 @@ class FusionAwareGraph:
         inbounds = []
         for index, name in enumerate(self._dag):
             outbounds.append(
-                {reverse[outbound] for outbound in self._model_graph.get_node_outbounds(name)}
+                {reverse[outbound]
+                    for outbound in self._model_graph.get_node_outbounds(name)}
             )
             inbounds.append(
-                {reverse[inbound] for inbound in self._model_graph.get_node_inbounds(name)}
+                {reverse[inbound]
+                    for inbound in self._model_graph.get_node_inbounds(name)}
             )
 
         self._outbounds = outbounds
