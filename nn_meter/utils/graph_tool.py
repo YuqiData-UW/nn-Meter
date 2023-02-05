@@ -4,6 +4,7 @@ import copy
 import json
 import logging
 from .utils import NumpyEncoder
+from ..utils.utils import IS_TF2
 logging = logging.getLogger("nn-Meter")
 
 
@@ -18,6 +19,8 @@ class ModelGraph:
 
     def node(self, name, inbound_nodes=None):
         self.graph[name] = {}
+        if IS_TF2:
+            inbound_nodes = [n[1:] + "/resource" if n[0] == "^" and n.endswith("ReadVariableOp") else n for n in inbound_nodes]
         if inbound_nodes is not None:
             self.graph[name]["inbounds"] = inbound_nodes
             for node in inbound_nodes:

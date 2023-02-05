@@ -3,8 +3,11 @@
 import re
 import copy
 import logging
+from tqdm import tqdm
 from .protobuf_helper import ProtobufHelper
 from nn_meter.utils.import_package import try_import_tensorflow
+from ...utils.utils import IS_TF2
+
 logging = logging.getLogger("nn-Meter")
 
 
@@ -47,18 +50,22 @@ class FrozenPbParser:
             "/split_dim",
             "/axis",
         ]
+        stripped_nodes_keywords_tf2 = ["Identity"]
         graph = model_graph.get_graph()
         removed_node = []
         for key, value in graph.items():
             if "attr" in value.keys():
                 if value["attr"]["type"] in stripped_nodes_type:
+                    if IS_TF2:
+                        stripped_nodes_keywords += stripped_nodes_keywords_tf2
                     for kw in stripped_nodes_keywords:
                         if kw in key:
                             removed_node.append(key)
                             break
                 if value["attr"]["type"] in stripped_nodes_type_all:
                     removed_node.append(key)
-
+            elif IS_TF2 and key[0] == "^":
+                removed_node.append(key)
         for key in removed_node:
             del graph[key]
 
@@ -161,7 +168,7 @@ class FrozenPbParser:
 
         list_i_nodes = ["dilations", "strides", "ksize"]
         str_nodes = ["padding", "data_format"]
-
+        
         for attr_name in node.attr.keys():
             if attr_name in list_i_nodes:
                 attr_dict[attr_name] = [int(a) for a in node.attr[attr_name].list.i]
@@ -186,6 +193,25 @@ class FrozenPbParser:
                 continue
 
         if node.op in attr_as_node.keys():
+            # TODO: can use a hash table to reduce complexity
+            def check_copy_attr(attr_name):
+                copy_attr = False
+                if (
+                    attr_name == "value"
+                    and IS_TF2
+                    and "ReadVariableOp" not in node.name
+                ):
+                    copy_attr = True
+                elif (
+                    not IS_TF2
+                    and attr_name == "value"
+                    and "weight" not in node.name
+                    and "BatchNorm" not in node.name
+                    and "kernel" not in node.name
+                ):
+                    copy_attr = True
+                return copy_attr
+
             for target_node in self.graph.node:
                 if "regex" in attr_as_node[node.op].keys():
                     node_attr = re.findall(
@@ -194,12 +220,7 @@ class FrozenPbParser:
                     if len(node_attr) > 0:
                         logging.info("Find regex matching node %s" % node.name)
                         for attr_name in target_node.attr.keys():
-                            if (
-                                attr_name == "value"
-                                and "weight" not in node.name
-                                and "BatchNorm" not in node.name
-                                and "kernel" not in node.name
-                            ):
+                            if check_copy_attr(attr_name):
                                 node_attr_name = attr_as_node[node.op]["attr_name"]
                                 if node_attr_name not in attr_dict.keys():
                                     attr_dict[node_attr_name] = []
@@ -215,12 +236,8 @@ class FrozenPbParser:
                         node.name
                     ):
                         for attr_name in target_node.attr.keys():
-                            if (
-                                attr_name == "value"
-                                and "weight" not in node.name
-                                and "BatchNorm" not in node.name
-                                and "kernel" not in node.name
-                            ):
+                            # TODO: TF2's node doesn't have these string in node name
+                            if check_copy_attr(attr_name):
                                 attr_dict[
                                     attr_as_node[node.op]["attr_name"]
                                 ] = copy.deepcopy(
@@ -228,7 +245,6 @@ class FrozenPbParser:
                                         target_node.attr[attr_name].tensor
                                     )
                                 )
-
         return attr_dict
 
     def parse_graph(self, model_graph):
@@ -241,14 +257,14 @@ class FrozenPbParser:
             The Graph IR holder.
         """
 
-        for node in self.graph.node:
+        for node in tqdm(self.graph.node):
             model_graph.node(str(node.name), list(map(str, node.input)))
             model_graph.set_node_attr(
                 node.name,
                 {
                     "name": str(node.name),
                     "type": str(node.op),
-                    "output_shape": [], # This will be filled later
+                    "output_shape": [],  # This will be filled later
                     "attr": self.fetch_attr_to_dict(node),
                 },
             )

@@ -31,7 +31,7 @@ def download_from_url(urladdr, ppath):
             file.write(data)
     zipfile = ZipFile(file_name)
     zipfile.extractall(path=ppath)
-    zipfile.close() 
+    zipfile.close()
     progress_bar.close()
     os.remove(file_name)
 
@@ -43,3 +43,6 @@ class NumpyEncoder(json.JSONEncoder):
         if isinstance(obj, (bytes, bytearray)):
             return obj.decode("utf-8")
         return json.JSONEncoder.default(self, obj)
+
+
+IS_TF2 = True

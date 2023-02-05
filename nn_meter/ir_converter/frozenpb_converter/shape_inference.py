@@ -13,7 +13,7 @@ class ShapeInference:
     # Ops that only need to calculate the prodcast for shapes
     TF_PRODCAST_MATH_OPS = [
         "Add",
-        "AddN", # AddN does not support prodcast really
+        "AddN",  # AddN does not support prodcast really
         "AddV2",
         "Subtract",
         "Sub",
@@ -47,15 +47,14 @@ class ShapeInference:
         "FusedBatchNormV2",
         "FusedBatchNormV3",
         "BiasAdd",
-
+        
         "Relu",
         "Relu6",
         "Selu",
         "LeakyReLU",
-        "Elu"
+        "Elu",
         "Softmax",
-
-        "NoOp"
+        "NoOp",
     ]
 
     @staticmethod
@@ -189,7 +188,7 @@ class ShapeInference:
             The node in Graph IR in dict format.
         """
         return [], [graph[node["inbounds"][0]]["attr"]["output_shape"][0]]
-    
+
     @staticmethod
     def Pad_get_shape(graph, node):
         """
@@ -209,7 +208,7 @@ class ShapeInference:
         for dim in range(len(in_shape)):
             out_shape.append(in_shape[dim] + sum(paddings[dim]))
         return in_shape, out_shape
-    
+
     @staticmethod
     def PadV2_get_shape(graph, node):
         """
@@ -339,7 +338,7 @@ class ShapeInference:
             The node in Graph IR in dict format.
         """
         return ShapeInference.Pool_get_shape(graph, node)
-    
+
     @staticmethod
     def MaxPoolV2_get_shape(graph, node):
         """
@@ -713,7 +712,9 @@ class ShapeInference:
             for in_node in node["inbounds"]:
                 if graph[in_node]["attr"]["type"] == "Const":
                     exp_output_shape = copy.deepcopy(
-                        graph[in_node]["attr"]["constant"]
+                        # This should be a bug of nn-meter
+                        # there was not case that "constant" is saved under graph[in_node]["attr"]
+                        graph[in_node]["attr"]["attr"]["constant"]
                     )
                 elif graph[in_node]["attr"]["type"] == "Pack":
                     exp_output_shape = [1] + [
@@ -848,9 +849,7 @@ class ShapeInference:
                 logging.info("Fetched perm sequence from Const op %s" % str(perm))
             elif graph[in_node]["attr"]["type"] == "Pack":
                 perm = [1] + [
-                    it
-                    for sl in graph[in_node]["attr"]["attr"]["constant"]
-                    for it in sl
+                    it for sl in graph[in_node]["attr"]["attr"]["constant"] for it in sl
                 ]
                 logging.info("Fetched perm sequence from Pack op %s" % str(perm))
             else:
@@ -923,6 +922,8 @@ class ShapeInference:
         """
         graph = model_graph.get_graph()
         seq = ph.get_graph_seq(graph, model_graph.get_graph_head())
+        # Converted graphDef from tf2 can have some ops starts with "^"
+        seq = [s for s in seq if s[0] != "^"]
 
         # Pass #1
         for node_name in seq:
@@ -930,27 +931,37 @@ class ShapeInference:
             node_get_shape_name = node_type + "_get_shape"
 
             # if node type find in supported ops, use faster static inference
-            if node_type in self.TF_PRODCAST_MATH_OPS or \
-                node_type in self.TF_PROPAGATE_MATH_OPS or \
-                node_get_shape_name in dir(self) :
-
-                if node_type in self.TF_PRODCAST_MATH_OPS:
-                    input_shape, output_shape = ShapeInference.eval_prodcast(graph, graph[node_name])
-                elif node_type in self.TF_PROPAGATE_MATH_OPS:
-                    input_shape, output_shape = ShapeInference.propagate_shape(graph, graph[node_name])
-                else:
-                    input_shape, output_shape = eval("self." + node_get_shape_name)(
-                        graph, graph[node_name]
+            if (
+                node_type in self.TF_PRODCAST_MATH_OPS
+                or node_type in self.TF_PROPAGATE_MATH_OPS
+                or node_get_shape_name in dir(self)
+            ):
+                try:
+                    if node_type in self.TF_PRODCAST_MATH_OPS:
+                        input_shape, output_shape = ShapeInference.eval_prodcast(graph, graph[node_name])
+                    elif node_type in self.TF_PROPAGATE_MATH_OPS:
+                        input_shape, output_shape = ShapeInference.propagate_shape(graph, graph[node_name])
+                    else:
+                        input_shape, output_shape = eval("self." + node_get_shape_name)(
+                            graph, graph[node_name]
+                        )
+                except Exception as e:
+                    logging.warning(
+                        f"Failed when extracting input/output shape of node {node_name}. ERROR: {e}"
                     )
 
             # fallback to dynamic inference
-            # To be aware, dynamic inference does not process the shape at all, 
+            # To be aware, dynamic inference does not process the shape at all,
             # like removing weight shape from inputs. This may yield false prediction.
             else:
-                logging.warn("%s is not supported by static inference yet." % model_graph.get_node_type(node_name))
-                logging.warn("Failling back to dynamic fetcher, this may yield low inference speed.")
+                logging.warn(
+                    "%s is not supported by static inference yet."
+                    % model_graph.get_node_type(node_name)
+                )
+                logging.warn(
+                    "Failling back to dynamic fetcher, this may yield low inference speed."
+                )
                 input_shape, output_shape = dynamic_fetcher.get_shape_by_name(node_name)
-
 
             if output_shape is not None:
                 graph[node_name]["attr"]["output_shape"] = copy.deepcopy(
@@ -960,7 +971,7 @@ class ShapeInference:
                 graph[node_name]["attr"]["input_shape"] = copy.deepcopy(input_shape)
             logging.info(
                 "Input shape of %s op is %s." % (node_name, str(input_shape))
-            )
+                )
             logging.info(
                 "Output shape of %s op is %s." % (node_name, str(output_shape))
             )

@@ -1,6 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 import logging
+from ...utils.utils import IS_TF2
+
 logging = logging.getLogger("nn-Meter")
 
 
@@ -53,41 +55,56 @@ class ProtobufHelper:
         node : dict
             A single node in graph IR.
         """
-        NODE_WEIGHT_LUT = {
-            "Conv2D": [
-                lambda x: x.replace("/Conv2D", "/weight"),
-                lambda x: x.replace("/Conv2D", "/kernel"),
-            ],
-            "DepthwiseConv2dNative": [lambda x: x.replace("/depthwise", "/weight")],
-            "BiasAdd": [
-                lambda x: x.replace("/BiasAdd", "/bias"),
-            ],
-            "FusedBatchNorm": [
-                lambda x: x.replace("/FusedBatchNormV3", "/gamma"),
-                lambda x: x.replace("/FusedBatchNormV3", "/beta"),
-                lambda x: x.replace("/FusedBatchNormV3", "/moving_mean"),
-                lambda x: x.replace("/FusedBatchNormV3", "/moving_variance"),
-            ],
-            "MatMul": [
-                lambda x: x.replace("/MatMul", "/weight"),
-            ],
-        }
+        if IS_TF2:
+            weight_name = []
+            weight_op = node["attr"]["name"] + "/ReadVariableOp/resource"
+            if (
+                weight_op in graph.keys()
+                and graph[weight_op]["attr"]["type"] != "Identity"
+            ):
+                logging.info(
+                    "Find node %s with its weight op %s."
+                    % (node["attr"]["name"], weight_op)
+                )
+                weight_name.append(weight_op)
 
-        weight_name = []
-        if node["attr"]["type"] in NODE_WEIGHT_LUT.keys():
-            for lut_lamba in NODE_WEIGHT_LUT[node["attr"]["type"]]:
-                weight_op = lut_lamba(node["attr"]["name"])
-                if (
-                    weight_op in graph.keys()
-                    and graph[weight_op]["attr"]["type"] != "Identity"
-                ):
-                    logging.info(
-                        "Find node %s with its weight op %s."
-                        % (node["attr"]["name"], weight_op)
-                    )
-                    weight_name.append(weight_op)
+            return weight_name
+        else:
+            NODE_WEIGHT_LUT = {
+                "Conv2D": [
+                    lambda x: x.replace("/Conv2D", "/weight"),
+                    lambda x: x.replace("/Conv2D", "/kernel"),
+                ],
+                "DepthwiseConv2dNative": [lambda x: x.replace("/depthwise", "/weight")],
+                "BiasAdd": [
+                    lambda x: x.replace("/BiasAdd", "/bias"),
+                ],
+                "FusedBatchNorm": [
+                    lambda x: x.replace("/FusedBatchNormV3", "/gamma"),
+                    lambda x: x.replace("/FusedBatchNormV3", "/beta"),
+                    lambda x: x.replace("/FusedBatchNormV3", "/moving_mean"),
+                    lambda x: x.replace("/FusedBatchNormV3", "/moving_variance"),
+                ],
+                "MatMul": [
+                    lambda x: x.replace("/MatMul", "/weight"),
+                ],
+            }
 
-        return weight_name
+            weight_name = []
+            if node["attr"]["type"] in NODE_WEIGHT_LUT.keys():
+                for lut_lamba in NODE_WEIGHT_LUT[node["attr"]["type"]]:
+                    weight_op = lut_lamba(node["attr"]["name"])
+                    if (
+                        weight_op in graph.keys()
+                        and graph[weight_op]["attr"]["type"] != "Identity"
+                    ):
+                        logging.info(
+                            "Find node %s with its weight op %s."
+                            % (node["attr"]["name"], weight_op)
+                        )
+                        weight_name.append(weight_op)
+
+            return weight_name
 
     @staticmethod
     def get_graph_seq(graph, graph_head):

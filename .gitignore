@@ -43,3 +43,7 @@ cover/
 
 # Sphinx documentation
 docs/_build/
+
+# from build 
+examples/nn-meter_quick_start/~/
+material/predictor/
