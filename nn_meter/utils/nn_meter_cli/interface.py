@@ -25,12 +25,14 @@ def nn_meter_info(args):
 
 
 def nn_meter_cli():
-    parser = argparse.ArgumentParser('nn-meter', description='please run "nn-meter {positional argument} --help" to see nn-meter guidance')
+    parser = argparse.ArgumentParser(
+        'nn-meter',
+        description='please run "nn-meter {positional argument} --help" to see nn-meter guidance')
     parser.set_defaults(func=nn_meter_info)
 
     # optional arguments
     parser.add_argument(
-        "-v", "--verbose", 
+        "-v", "--verbose",
         help="increase output verbosity",
         action="store_true"
     )
@@ -99,7 +101,7 @@ def nn_meter_cli():
         help="path to input nn-Meter IR model (*.json file or floder)"
     )
     model_type.add_argument(
-        "--torchvision",        # --torchvision only can support the model object. The argument specifies 
+        "--torchvision",        # --torchvision only can support the model object. The argument specifies
         type=str,               # the name of the model, and we will look for the model in torchvision model zoo.
         nargs='+',
         help="name of the input torch model from the torchvision model zoo"
@@ -109,13 +111,13 @@ def nn_meter_cli():
     # Usage 2: get nn-meter-ir model from tensorflow pbfile or onnx file
     # Usage: nn-meter get_ir --tensorflow <pb-file>
     get_ir = subparsers.add_parser(
-        'get_ir', 
+        'get_ir',
         help='specify a model type to convert to nn-meter ir graph'
     )
     model_type = get_ir.add_mutually_exclusive_group()
     model_type.add_argument(
         "--tensorflow",
-        type = str,
+        type=str,
         help="path to input Tensorflow model (*.pb)"
     )
     model_type.add_argument(
@@ -130,10 +132,10 @@ def nn_meter_cli():
     )
     get_ir.set_defaults(func=get_nnmeter_ir_cli)
 
-    # Usage 3: create workspace folder for nn-Meter builder 
+    # Usage 3: create workspace folder for nn-Meter builder
     # Usage: nn-meter create --tflite-workspace <path/to/workspace>
     create_workspace = subparsers.add_parser(
-        'create', 
+        'create',
         help='create a workspace folder for nn-Meter builder'
     )
     platform = create_workspace.add_mutually_exclusive_group()
@@ -159,10 +161,10 @@ def nn_meter_cli():
     )
     create_workspace.set_defaults(func=create_workspace_cli)
 
-    # Usage 4: test the connection to backend 
+    # Usage 4: test the connection to backend
     # Usage: nn-meter connect --backend <backend-name> --workspace <path/to/workspace>
     test_connection = subparsers.add_parser(
-        'connect', 
+        'connect',
         help='connect to backend'
     )
     test_connection.add_argument(
@@ -176,11 +178,11 @@ def nn_meter_cli():
         help="path to the workspace with configuration completed"
     )
     test_connection.set_defaults(func=test_backend_connection_cli)
-    
-    # Usage 5: register customized module 
+
+    # Usage 5: register customized module
     # Usage: nn-meter register --backend <path/to/meta/file>
     register = subparsers.add_parser(
-        'register', 
+        'register',
         help='register customized module to nn-Meter, supporting type: predictor, backend, operator, testcase, operator'
     )
     module_type = register.add_mutually_exclusive_group()
@@ -210,13 +212,12 @@ def nn_meter_cli():
         help="path to the meta file to register a customized kernel"
     )
     register.set_defaults(func=register_module_cli)
-    
-    # Usage 6: unregister customized module 
+
+    # Usage 6: unregister customized module
     # Usage: nn-meter unregister --backend <path/to/meta/file>
     unregister = subparsers.add_parser(
-        'unregister', 
-        help='unregister customized module from nn-Meter, supporting type: predictor, backend, operator, testcase, operator'
-    )
+        'unregister',
+        help='unregister customized module from nn-Meter, supporting type: predictor, backend, operator, testcase, operator')
     module_type = unregister.add_mutually_exclusive_group()
     module_type.add_argument(
         "--predictor",

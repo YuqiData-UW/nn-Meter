@@ -31,14 +31,14 @@ class OpenVINOVPULatencyParser(BaseParser):
                     'realtime': float(match[4]),
                     'cputime': float(match[5]),
                 })
-            except:
+            except BaseException:
                 pass
         return layers
 
     @property
     def latency(self):
         return self.comp_layer_latency
-    
+
     @property
     def results(self):
         results = ProfiledResults({'latency': self.latency})

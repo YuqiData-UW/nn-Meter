@@ -12,7 +12,7 @@ logging = logging.getLogger("nn-Meter")
 
 
 class KernelGenerator:
-    def __init__(self, kernel_type, sample_num, mark = ""):
+    def __init__(self, kernel_type, sample_num, mark=""):
         self.kernel_type = kernel_type
         self.sample_num = sample_num
         self.workspace_path = builder_config.get('WORKSPACE', 'predbuild')
@@ -25,7 +25,7 @@ class KernelGenerator:
         self.mark = mark
         os.makedirs(self.case_save_path, exist_ok=True)
 
-    def generate_config(self, sampling_mode = 'prior', configs = None):
+    def generate_config(self, sampling_mode='prior', configs=None):
         sampled_cfgs = get_sampler_for_kernel(self.kernel_type, self.sample_num, sampling_mode, configs)
         for i in range(len(sampled_cfgs)):
             random_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
@@ -62,10 +62,10 @@ class KernelGenerator:
         os.makedirs(os.path.dirname(info_save_path), exist_ok=True)
         with open(info_save_path, 'w') as fp:
             json.dump(new_kernels_info, fp, indent=4)
-        logging.keyinfo(f"Generate {len(self.kernels)} kernels and save info to {info_save_path} " \
+        logging.keyinfo(f"Generate {len(self.kernels)} kernels and save info to {info_save_path} "
                         f"Failed information are saved in {error_save_path} (if any).")
 
-    def run(self, sampling_mode = 'prior', configs = None):
+    def run(self, sampling_mode='prior', configs=None):
         """ sample N configurations for target kernel, generate tensorflow keras model files.
 
         @params
@@ -74,14 +74,14 @@ class KernelGenerator:
         """
         # sample configs
         self.generate_config(sampling_mode, configs)
-        
-        # for all sampled configurations, save kernels info and generate tensorflow model files 
+
+        # for all sampled configurations, save kernels info and generate tensorflow model files
         self.generate_kernel_by_cfg()
         logging.info(f'Generate {len(self.kernels)} kernels with kernels model saved in {self.case_save_path}.')
         return self.kernel_info
 
 
-def generate_config_sample(kernel_type, sample_num, mark = '', sampling_mode = 'prior', configs = None):
+def generate_config_sample(kernel_type, sample_num, mark='', sampling_mode='prior', configs=None):
     """ Generate config sample and return sampled configs.
 
     @params
@@ -94,7 +94,7 @@ def generate_config_sample(kernel_type, sample_num, mark = '', sampling_mode = '
     sampling_mode (str, optional): the sampling mode for config generation, supporting mode includes 'prior' and 'finegrained'.
         Defaults to be 'prior'.
 
-    configs (list, optional): is required when the sampling_mode=='finegrained'. The fingrained samples will based on the config 
+    configs (list, optional): is required when the sampling_mode=='finegrained'. The fingrained samples will based on the config
         in `configs`. Defaults to None.
 
     """

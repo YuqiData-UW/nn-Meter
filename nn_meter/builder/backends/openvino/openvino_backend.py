@@ -22,7 +22,7 @@ class OpenVINOBackend(BaseBackend):
             'data_type': self.configs['DATA_TYPE'],
         })
         self.venv = self.configs['OPENVINO_ENV']
-    
+
     def convert_model(self, model, model_name, savedpath, input_shape=None):
         """convert the Keras model instance to frozen pb file
         """
@@ -33,8 +33,8 @@ class OpenVINOBackend(BaseBackend):
         patched_pb_path = patch_frozenpb(pb_path, os.path.join(self.venv, 'bin/python'))
         return patched_pb_path
 
-    def profile(self, converted_model, metrics = ['latency'], input_shape = None):
-        """convert the model to the backend platform and run the model on the backend, return required metrics 
+    def profile(self, converted_model, metrics=['latency'], input_shape=None):
+        """convert the model to the backend platform and run the model on the backend, return required metrics
         of the running results. We only support latency for metric by now.
         """
         self.profiler.load_graph(converted_model, self.tmp_dir)

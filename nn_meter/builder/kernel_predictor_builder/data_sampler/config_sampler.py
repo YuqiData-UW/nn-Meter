@@ -48,7 +48,7 @@ class FCSampler(BaseConfigSampler):
 
     def prior_config_sampling(self, sample_num):
         # half samples have fixed cout as 1000, other samples have random cout
-        return sampling_fc(int(sample_num * 0.5), fix_cout = 1000) + sampling_fc(int(sample_num * 0.5), fix_cout = False)
+        return sampling_fc(int(sample_num * 0.5), fix_cout=1000) + sampling_fc(int(sample_num * 0.5), fix_cout=False)
 
     def finegrained_config_sampling(self, configs, sample_num):
         return finegrained_sampling_fc(configs, sample_num)
@@ -78,8 +78,10 @@ class GlobalAvgPoolSampler(BaseConfigSampler):
         cfgs = sampling_hw_cin(sample_num)
         new_hws = [3] * (sample_num // 2 + 1) + [7] * (sample_num // 2 + 1)
         new_hws = new_hws[:len(cfgs)]
-        import random; random.shuffle(new_hws)
-        for cfg, hw in zip(cfgs, new_hws): cfg["HW"] = hw
+        import random
+        random.shuffle(new_hws)
+        for cfg, hw in zip(cfgs, new_hws):
+            cfg["HW"] = hw
         return cfgs
 
     def finegrained_config_sampling(self, configs, sample_num):
@@ -90,6 +92,6 @@ class HwCinSampler(BaseConfigSampler):
 
     def prior_config_sampling(self, sample_num):
         return sampling_hw_cin(sample_num)
-    
+
     def finegrained_config_sampling(self, configs, sample_num):
         return finegrained_sampling_hw_cin(configs, sample_num)

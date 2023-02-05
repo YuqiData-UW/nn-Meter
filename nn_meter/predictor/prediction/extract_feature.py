@@ -3,6 +3,7 @@
 import logging
 from nn_meter.utils import get_conv_flop_params, get_dwconv_flop_params, get_fc_flop_params
 
+
 def get_flops_params(kernel_type, hw, cin, cout, kernelsize, stride):
     if "dwconv" in kernel_type:
         return get_dwconv_flop_params(hw, cout, kernelsize, stride)
@@ -92,7 +93,7 @@ def get_predict_features(config):
             cin1 = itensors[0][3]
             cin2 = itensors[1][3]
             features = [inputh, cin1, cin2]
-        else: # indicates that there is no matching predictor for this op
+        else:  # indicates that there is no matching predictor for this op
             # logging.warning(f'There is no matching predictor for op {op}.')
             continue
         mdicts[layer] = {}

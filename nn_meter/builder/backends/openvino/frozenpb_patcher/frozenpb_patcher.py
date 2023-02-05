@@ -197,13 +197,13 @@ def pbtxt_processing(content):
                 break
             nodeNameLoc = content.rfind('name', 0, meanOpLoc)
             nodeNameDLoc = content.find('"', nodeNameLoc)
-            nodeName = content[nodeNameDLoc +
-                               1:content.find('"', nodeNameDLoc + 1)]
+            nodeName = content[nodeNameDLoc
+                               + 1:content.find('"', nodeNameDLoc + 1)]
 
             nodeInputLoc = content.find('input', meanOpLoc)
             nodeInputDLoc = content.find('"', nodeInputLoc)
-            nodeInputName = content[nodeInputDLoc +
-                                    1:content.find('"', nodeInputDLoc + 1)]
+            nodeInputName = content[nodeInputDLoc
+                                    + 1:content.find('"', nodeInputDLoc + 1)]
 
             inputNodeNameLoc = content.find(f'name: "{nodeInputName}"')
             inputNodeEnd = content.find('node', inputNodeNameLoc)
@@ -269,8 +269,8 @@ def pbtxt_processing(content):
 
             nodeNameLoc = content.rfind('name', 0, keepDimLoc)
             nodeNameDLoc = content.find('"', nodeNameLoc)
-            nodeName = content[nodeNameDLoc +
-                               1:content.find('"', nodeNameDLoc + 1)]
+            nodeName = content[nodeNameDLoc
+                               + 1:content.find('"', nodeNameDLoc + 1)]
             print(
                 f'Found Node name: {nodeName}, Output Shape: {OUTPUT_FILTER}, Oct: {dec2octpkg4(OUTPUT_FILTER)}')
             print('Patching the Mean operator...')
@@ -307,13 +307,13 @@ def pbtxt_processing(content):
                 break
             nodeNameLoc = content.rfind('name', 0, swishOpLoc)
             nodeNameDLoc = content.find('"', nodeNameLoc)
-            nodeName = content[nodeNameDLoc +
-                               1:content.find('"', nodeNameDLoc + 1)]
+            nodeName = content[nodeNameDLoc
+                               + 1:content.find('"', nodeNameDLoc + 1)]
 
             nodeInputLoc = content.find('input', swishOpLoc)
             nodeInputDLoc = content.find('"', nodeInputLoc)
-            nodeInputName = content[nodeInputDLoc +
-                                    1:content.find('"', nodeInputDLoc + 1)]
+            nodeInputName = content[nodeInputDLoc
+                                    + 1:content.find('"', nodeInputDLoc + 1)]
 
             print(
                 f'Found Node name: {nodeName}\nPatching the swish_f32 operator...')
@@ -365,5 +365,5 @@ else:
                    os.path.dirname(FILE_NAME),
                    os.path.basename(FILE_NAME).split('.')[0] + '_patched.pb',
                    as_text=False)
-    
+
     os.remove(PBTXT_FILE_NAME)

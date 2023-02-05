@@ -6,6 +6,7 @@ import yaml
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 package_location = os.path.join(BASE_DIR, "register_module")
 
+
 def register_by_meta(module_type, register_meta):
     with open('meta_file.yaml', 'w') as fp:
         yaml.dump(register_meta, fp)

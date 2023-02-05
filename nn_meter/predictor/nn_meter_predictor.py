@@ -25,14 +25,15 @@ def load_predictor_config(predictor_name: str, predictor_version: float = None):
     return the information of the predictor model according to the given predictor name and version
     @params:
 
-    predictor_name: string to specify the name of the target latency predictor. All built-in predictors can be viewed by nn_meter.list_latency_predictors() 
+    predictor_name: string to specify the name of the target latency predictor. All built-in predictors can be viewed by nn_meter.list_latency_predictors()
         or through the config file in nn_meter/configs/predictors.yaml.
-    
-    predictor_version: string to specify the version of the target latency predictor. If not specified (default as None), the lateast version of the 
+
+    predictor_version: string to specify the version of the target latency predictor. If not specified (default as None), the lateast version of the
         predictor will be loaded.
     """
     config = load_config_file(__predictors_cfg_filename__)
-    preds_info = [p for p in config if p['name'] == predictor_name and (predictor_version is None or p['version'] == predictor_version)]
+    preds_info = [p for p in config if p['name'] == predictor_name and (
+        predictor_version is None or p['version'] == predictor_version)]
     n_preds = len(preds_info)
     if n_preds == 1:
         return preds_info[0]
@@ -50,14 +51,14 @@ def load_predictor_config(predictor_name: str, predictor_version: float = None):
 
 
 def load_latency_predictor(predictor_name: str, predictor_version: float = None):
-    """ 
+    """
     return the predictor model according to the given predictor name and version
     @params:
 
-    predictor_name: string to specify the name of the target latency predictor. All built-in predictors can be viewed by nn_meter.list_latency_predictors() 
+    predictor_name: string to specify the name of the target latency predictor. All built-in predictors can be viewed by nn_meter.list_latency_predictors()
         or through the config file in ~/.nn_meter/config/predictors.yaml.
-    
-    predictor_version: string to specify the version of the target latency predictor. If not specified (default as None), the lateast version of the 
+
+    predictor_version: string to specify the version of the target latency predictor. If not specified (default as None), the lateast version of the
         predictor will be loaded.
     """
     user_data_folder = get_user_data_folder()
@@ -66,7 +67,7 @@ def load_latency_predictor(predictor_name: str, predictor_version: float = None)
         kernel_predictors, fusionrule = loading_to_local(pred_info, os.path.join(user_data_folder, 'predictor'))
     else:
         kernel_predictors, fusionrule = loading_customized_predictor(pred_info)
-        
+
     return nnMeterPredictor(kernel_predictors, fusionrule)
 
 
@@ -89,16 +90,16 @@ class nnMeterPredictor:
             - ONNX model object or the path to a saved ONNX model file (*.onnx), `model_type` must be set to "onnx"
             - dictionary object following nn-Meter-IR format, `model_type` must be set to "nnmeter-ir"
             - dictionary object following NNI-IR format, `model_type` must be set to "nni-ir"
-            
+
         model_type: string to specify the type of parameter model, allowed items are ["pb", "torch", "onnx", "nnmeter-ir", "nni-ir"]
-      
-        input_shape: the shape of input tensor for inference (if necessary), a random tensor according to the shape will be generated and used. This parameter is only 
+
+        input_shape: the shape of input tensor for inference (if necessary), a random tensor according to the shape will be generated and used. This parameter is only
         accessed when model_type == 'torch'
 
-        apply_nni: switch the torch converter used for torch model parsing. If apply_nni==True, NNI-based converter is used for torch model conversion, which requires 
-            nni>=2.4 installation and should use nn interface from NNI `import nni.retiarii.nn.pytorch as nn` to define the PyTorch modules. Otherwise Onnx-based torch 
-            converter is used, which requires onnx installation (well tested version is onnx>=1.9.0). NNI-based converter is much faster while the conversion is unstable 
-            as it could fail in some case. Onnx-based converter is much slower but stable compared to NNI-based converter. This parameter is only accessed when 
+        apply_nni: switch the torch converter used for torch model parsing. If apply_nni==True, NNI-based converter is used for torch model conversion, which requires
+            nni>=2.4 installation and should use nn interface from NNI `import nni.retiarii.nn.pytorch as nn` to define the PyTorch modules. Otherwise Onnx-based torch
+            converter is used, which requires onnx installation (well tested version is onnx>=1.9.0). NNI-based converter is much faster while the conversion is unstable
+            as it could fail in some case. Onnx-based converter is much slower but stable compared to NNI-based converter. This parameter is only accessed when
             model_type == 'torch'
         """
         logging.info("Start latency prediction ...")
@@ -106,10 +107,10 @@ class nnMeterPredictor:
             graph = model_file_to_graph(model, model_type, input_shape, apply_nni=apply_nni)
         else:
             graph = model_to_graph(model, model_type, input_shape=input_shape, apply_nni=apply_nni)
-        
+
         # logging.info(graph)
         self.kd.load_graph(graph)
 
-        py = nn_predict(self.kernel_predictors, self.kd.get_kernels()) # in unit of ms
+        py = nn_predict(self.kernel_predictors, self.kd.get_kernels())  # in unit of ms
         logging.info(f"Predict latency: {py} ms")
         return py

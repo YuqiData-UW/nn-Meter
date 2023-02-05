@@ -99,4 +99,3 @@ class MultipleOutNodes(BaseTestCase):
         x = keras.layers.DepthwiseConv2D(self.kernel_size, padding=self.padding)(input_layer)
 
         return keras.models.Model(input_layer, x), [self.input_shape]
-

@@ -2,11 +2,11 @@
 # Licensed under the MIT license.
 
 class BaseOperator:
-    def __init__(self, input_shape = None, config = None):
+    def __init__(self, input_shape=None, config=None):
         ''' base class for operator.
-        
+
         @params
-        
+
         - input_shape: defines the dimension of one model input shape without batch size. Generally, when the input shape is 3D, `input_shape`
             should be `[config["HW"], config["HW"], config["CIN"]]` (for tensorflow model), or `config["CIN"], [config["HW"], config["HW"]]` (for
             torch model), and when the input shape is 1D, `input_shape` should be`[config["CIN"]]`.
@@ -32,11 +32,11 @@ class BaseOperator:
 
 
 class BaseBlock:
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         ''' base class for kernel block.
-        
+
         @params
-        
+
         - input_shape: defines the dimension of one model input shape without batch size. Generally, when the input shape is 3D, `input_shape`
             should be `[config["HW"], config["HW"], config["CIN"]]` (for tensorflow model), or `config["CIN"], [config["HW"], config["HW"]]` (for
             torch model), and when the input shape is 1D, `input_shape` should be`[config["CIN"]]`.

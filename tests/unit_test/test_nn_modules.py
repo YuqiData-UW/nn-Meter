@@ -1,16 +1,42 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
-kernels = ["ConvBnRelu", "ConvBnRelu6", "ConvBn", "ConvRelu", "ConvRelu6", "ConvHswish", "ConvBlock", "ConvBnHswish", "DwConvBn",
-           "DwConvRelu", "DwConvRelu6", "DwConvBnRelu", "DwConvBnRelu6", "DwConvBlock", "ConvBnHswish", "MaxPoolBlock", "AvgPoolBlock",
-           "FCBlock", "ConcatBlock", "SplitBlock", "ChannelShuffle", "SEBlock", "GlobalAvgPoolBlock", "BnRelu", "BnBlock",
-           "HswishBlock", "ReluBlock", "AddRelu", "AddBlock"]
+kernels = [
+    "ConvBnRelu",
+    "ConvBnRelu6",
+    "ConvBn",
+    "ConvRelu",
+    "ConvRelu6",
+    "ConvHswish",
+    "ConvBlock",
+    "ConvBnHswish",
+    "DwConvBn",
+    "DwConvRelu",
+    "DwConvRelu6",
+    "DwConvBnRelu",
+    "DwConvBnRelu6",
+    "DwConvBlock",
+    "ConvBnHswish",
+    "MaxPoolBlock",
+    "AvgPoolBlock",
+    "FCBlock",
+    "ConcatBlock",
+    "SplitBlock",
+    "ChannelShuffle",
+    "SEBlock",
+    "GlobalAvgPoolBlock",
+    "BnRelu",
+    "BnBlock",
+    "HswishBlock",
+    "ReluBlock",
+    "AddRelu",
+    "AddBlock"]
 
 if __name__ == '__main__':
     config = {
         "HW": 24,
         "CIN": 144,
         "COUT": 32,
-        "KERNEL_SIZE": 1, 
+        "KERNEL_SIZE": 1,
         "STRIDES": 1,
         "POOL_STRIDES": 2,
         "NS": 3,

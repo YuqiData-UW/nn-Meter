@@ -56,7 +56,7 @@ class TFLiteCPULatencyParser(BaseParser):
             total_latency = Latency(float(match[1]) / 1000, float(match[2]) / 1000)
 
         return total_latency
-    
+
     @property
     def latency(self):
         return self.total_latency

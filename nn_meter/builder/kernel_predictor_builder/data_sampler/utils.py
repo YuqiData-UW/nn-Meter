@@ -91,7 +91,7 @@ def generate_model_for_kernel(kernel_type, config, save_path, implement='tensorf
     return model, input_tensor_shape, config
 
 
-def get_sampler_for_kernel(kernel_type, sample_num, sampling_mode, configs = None):
+def get_sampler_for_kernel(kernel_type, sample_num, sampling_mode, configs=None):
     """ return the list of sampled data configurations in prior and finegrained sampling mode
     """
     # get kernel sampler class information

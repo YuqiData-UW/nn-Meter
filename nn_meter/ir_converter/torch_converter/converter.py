@@ -21,7 +21,7 @@ class NNIIRConverter:
         try:
             from nni.retiarii.converter.utils import flatten_model_graph
             self.ir_model = flatten_model_graph(ir_model)
-        except:
+        except BaseException:
             from nni.retiarii.converter.graph_gen import GraphConverterWithShape
             self.ir_model = ir_model.fork()
             GraphConverterWithShape().flatten(self.ir_model)
@@ -47,11 +47,11 @@ class NNIIRConverter:
                         for k, v in node.operation.parameters.items()
                     },
                     "input_shape": _nchw_to_nhwc(node.operation.parameters.get("input_shape")
-                                                 if "input_shape" in node.operation.parameters 
+                                                 if "input_shape" in node.operation.parameters
                                                  else node.operation.attributes.get('input_shape')),
-                    "output_shape": _nchw_to_nhwc(node.operation.parameters.get("output_shape") 
-                                                 if "output_shape" in node.operation.parameters 
-                                                 else node.operation.attributes.get('output_shape')),
+                    "output_shape": _nchw_to_nhwc(node.operation.parameters.get("output_shape")
+                                                  if "output_shape" in node.operation.parameters
+                                                  else node.operation.attributes.get('output_shape')),
                     "type": node.operation.type,
                 },
                 "inbounds": [],
@@ -128,4 +128,3 @@ class OnnxBasedTorchConverter(OnnxConverter):
 
         assert check, "Simplified ONNX model could not be validated"
         super().__init__(model_simp)
-

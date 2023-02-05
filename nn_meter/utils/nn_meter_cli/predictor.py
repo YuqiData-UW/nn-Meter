@@ -25,12 +25,12 @@ def apply_latency_predictor_cli(args):
         input_model, model_type, model_suffix = args.onnx, "onnx", ".onnx"
     elif args.nn_meter_ir:
         input_model, model_type, model_suffix = args.nn_meter_ir, "nnmeter-ir", ".json"
-    elif args.torchvision: # torch model name from torchvision model zoo
-        input_model_list, model_type = args.torchvision, "torch" 
+    elif args.torchvision:  # torch model name from torchvision model zoo
+        input_model_list, model_type = args.torchvision, "torch"
     else:
         logging.keyinfo('please run "nn-meter predict --help" to see guidance.')
         return
-    
+
     if not args.predictor:
         logging.keyinfo('You must specify a predictor. Use "nn-meter --list-predictors" to see all supporting predictors.')
         return
@@ -39,13 +39,12 @@ def apply_latency_predictor_cli(args):
     predictor = load_latency_predictor(args.predictor, args.predictor_version)
 
     # specify model for prediction
-    if not args.torchvision: # input of tensorflow, onnx, nnmeter-ir and nni-ir is file name, while input of torchvision is string list
+    if not args.torchvision:  # input of tensorflow, onnx, nnmeter-ir and nni-ir is file name, while input of torchvision is string list
         input_model_list = []
         if os.path.isfile(input_model):
             input_model_list = [input_model]
         elif os.path.isdir(input_model):
-            input_model_list = glob(os.path.join(input_model, "**" + model_suffix))
-            input_model_list.sort()
+            input_model_list = sorted(glob(os.path.join(input_model, "**" + model_suffix)))
             logging.info(f'Found {len(input_model_list)} model in {input_model}. Start prediction ...')
         else:
             logging.error(f'Cannot find any model satisfying the arguments.')
@@ -53,10 +52,10 @@ def apply_latency_predictor_cli(args):
     # predict latency
     result = {}
     for model in input_model_list:
-        latency = predictor.predict(model, model_type) # in unit of ms
+        latency = predictor.predict(model, model_type)  # in unit of ms
         result[os.path.basename(model)] = latency
         logging.result(f'[RESULT] predict latency for {os.path.basename(model)}: {latency} ms')
-    
+
     return result
 
 
@@ -67,22 +66,23 @@ def get_nnmeter_ir_cli(args):
     from nn_meter.utils.utils import NumpyEncoder
     if args.tensorflow:
         graph = model_file_to_graph(args.tensorflow, 'pb')
-        filename = args.output if args.output else args.tensorflow.replace(".pb", "_pb_ir.json") 
+        filename = args.output if args.output else args.tensorflow.replace(".pb", "_pb_ir.json")
     elif args.onnx:
         graph = model_file_to_graph(args.onnx, 'onnx')
-        filename = args.output if args.output else args.onnx.replace(".onnx", "_onnx_ir.json") 
+        filename = args.output if args.output else args.onnx.replace(".onnx", "_onnx_ir.json")
     else:
         logging.keyinfo('please run "nn-meter get_ir --help" to see guidance.')
         return
-    
-    if not str.endswith(filename, '.json'): filename += '.json'
+
+    if not str.endswith(filename, '.json'):
+        filename += '.json'
     with open(filename, "w+") as fp:
         json.dump(graph,
-            fp,
-            indent=4,
-            skipkeys=True,
-            sort_keys=True,
-            cls=NumpyEncoder,
-        )
-    
+                  fp,
+                  indent=4,
+                  skipkeys=True,
+                  sort_keys=True,
+                  cls=NumpyEncoder,
+                  )
+
     logging.result(f'The nn-meter ir graph has been saved. Saved path: {os.path.abspath(filename)}')

@@ -9,17 +9,17 @@ class ProfiledResults:
     def __init__(self, results=None):
         """
         Initialize the profiled results of test models running on backends.
-        
+
         @params:
-        
+
         results: Dict
-            The profiled results, with Dict key to be the metric name. Metrics 
+            The profiled results, with Dict key to be the metric name. Metrics
             include: latency, peak/average power, energy, memory, etc.
         """
         self.data = {}
         for metric, value in results.items():
             self.data[metric] = value
-    
+
     def set(self, metric, value):
         """ Set metric value by its name
         """
@@ -37,7 +37,7 @@ class ProfiledResults:
             else:
                 raise AttributeError(f"Unsupported metric {metric}.")
         return result
-    
+
     def _dump(self):
         return {metric: str(value) for metric, value in self.data}
 
@@ -62,7 +62,7 @@ class Latency:
             return Latency(self.avg + rhs.avg, math.sqrt(self.std ** 2 + rhs.std ** 2))
         else:
             return Latency(self.avg + rhs, self.std)
-    
+
     def __radd__(self, lhs):
         return self.__add__(lhs)
 
@@ -74,7 +74,7 @@ class Latency:
 
     def __le__(self, rhs):
         return self.avg < rhs.avg
-    
+
     def __gt__(self, rhs):
         return self.avg > rhs.avg
 
@@ -85,7 +85,7 @@ class Latency:
         return self + rhs.__neg__()
 
 
-def dump_profiled_results(results, detail = False, metrics = ["latency"]):
+def dump_profiled_results(results, detail=False, metrics=["latency"]):
     ''' convert Latency instance to string and return profiled results
 
     @params

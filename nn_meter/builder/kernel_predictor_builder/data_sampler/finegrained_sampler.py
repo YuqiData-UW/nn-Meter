@@ -15,18 +15,18 @@ def sample_in_range(mind, maxd, sample_num):
         return random.sample(range(mind, maxd), sample_num)
 
 
-def sample_cin_cout(cin, cout, sample_num): 
+def sample_cin_cout(cin, cout, sample_num):
     '''fine-grained sample #sample_num data in the cin and cout dimensions, respectively
     '''
     cins = sample_in_range(int(cin * 0.5), int(cin * 1.2), sample_num)
     couts = sample_in_range(int(cout * 0.5), int(cout * 1.2), sample_num)
-    l = min(len(cins), len(couts)) # align the length of cins and couts
+    l = min(len(cins), len(couts))  # align the length of cins and couts
     cins, couts = cins[:l], couts[:l]
     return cins, couts
 
 
 def finegrained_sampling_conv(cfgs, count):
-    ''' 
+    '''
     Sampling configs for conv kernels
     Returned params include: (hw, cin, cout, kernel_size, strides)
     '''
@@ -46,7 +46,7 @@ def finegrained_sampling_conv(cfgs, count):
 
 
 def finegrained_sampling_dwconv(cfgs, count):
-    ''' 
+    '''
     Sampling configs for dwconv kernels
     Returned params include: (hw, cin, kernel_size, strides)
     '''
@@ -134,7 +134,7 @@ def finegrained_sampling_hw_cin_even(cfgs, count):
 
 def finegrained_sampling_concats(cfgs, count):
     ''' sampling functions for concat kernel
-    Returned params include: (hw, cin1, cin2, cin3, cin4). Note that we only sample (num of cin) = 2, 3, 4, 
+    Returned params include: (hw, cin1, cin2, cin3, cin4). Note that we only sample (num of cin) = 2, 3, 4,
     (cin1, cin2, cin3, cin4) is one-hot vector with unused input channel set as 0.
     '''
     ncfgs = []

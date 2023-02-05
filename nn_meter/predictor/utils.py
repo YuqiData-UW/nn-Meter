@@ -33,7 +33,7 @@ def loading_to_local(pred_info, dir):
     predictors = {}
     ps = glob(os.path.join(ppath, "**.pkl"))
     for p in ps:
-        pname =  os.path.basename(p).replace(".pkl", "")
+        pname = os.path.basename(p).replace(".pkl", "")
         with open(p, "rb") as f:
             logging.info("load predictor %s" % p)
             model = pickle.load(f)
@@ -64,7 +64,7 @@ def loading_customized_predictor(pred_info):
     predictors = {}
     ps = glob(os.path.join(ppath, "**.pkl"))
     for p in ps:
-        pname =  os.path.basename(p).replace(".pkl", "")
+        pname = os.path.basename(p).replace(".pkl", "")
         with open(p, "rb") as f:
             logging.info("load predictor %s" % p)
             model = pickle.load(f)

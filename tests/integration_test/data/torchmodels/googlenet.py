@@ -116,7 +116,7 @@ class GoogLeNet(nn.Module):
 
     def _initialize_weights(self):
         pass
-    
+
     def _transform_input(self, x):
         # type: (Tensor) -> Tensor
         if self.transform_input:

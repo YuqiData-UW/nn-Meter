@@ -46,7 +46,7 @@ class BaseBackend:
         the backend. A profiler contains commands to push the model to mobile device, run the model on the mobile device,
         get stdout from the mobile device, and related operations. In the implementation of a profiler, an interface of
         ``Profiler.profile()`` is required.
-    
+
     parser_class: a subclass inherit form `nn_meter.builder.backend.BaseParser` to parse the profiled results.
         A parser parses the stdout from devices profiler and get required metrics. In the implementation of a parser, interface
         of `Parser.parse()` and property of `Parser.results()` are required.
@@ -69,24 +69,24 @@ class BaseBackend:
         """
         self.parser_kwargs = {}
         self.profiler_kwargs = {}
-    
-    def convert_model(self, model_path, save_path, input_shape = None):
+
+    def convert_model(self, model_path, save_path, input_shape=None):
         """ convert the Keras model instance to the type required by the backend inference.
 
         @params:
-        
+
         model_path: the path of model waiting to profile
-        
+
         save_path: folder to save the converted model
-        
-        input_shape: the shape of input tensor for inference, a random tensor according to the shape will be 
+
+        input_shape: the shape of input tensor for inference, a random tensor according to the shape will be
             generated and used
         """
         # convert model and save the converted model to path `converted_model`
         converted_model = model_path
         return converted_model
 
-    def profile(self, converted_model, metrics = ['latency'], **kwargs):
+    def profile(self, converted_model, metrics=['latency'], **kwargs):
         """
         run the model on the backend, return required metrics of the running results. nn-Meter only support latency
         for metric by now. Users may provide other metrics in their customized backend.
@@ -94,21 +94,21 @@ class BaseBackend:
         @params:
 
         converted_model: the model path in type of backend required
-        
+
         metrics: a list of required metrics name. Defaults to ['latency']
-        
+
         """
         return self.parser.parse(self.profiler.profile(converted_model, **kwargs)).results.get(metrics)
 
-    def profile_model_file(self, model_path, save_path, input_shape = None, metrics = ['latency'], **kwargs):
+    def profile_model_file(self, model_path, save_path, input_shape=None, metrics=['latency'], **kwargs):
         """ load model by model file path, convert model file, and run ``self.profile()``
         @params:
 
         model_path: the path of model waiting to profile
-        
+
         save_path: folder to save the converted model
-        
-        input_shape: the shape of input tensor for inference, a random tensor according to the shape will be 
+
+        input_shape: the shape of input tensor for inference, a random tensor according to the shape will be
             generated and used
         """
         converted_model = self.convert_model(model_path, save_path, input_shape)
@@ -123,9 +123,10 @@ class BaseBackend:
 
 class BaseProfiler:
     """
-    Specify the profiling command of the backend. A profiler contains commands to push the model to mobile device, run the model 
-    on the mobile device, get stdout from the mobile device, and related operations. 
+    Specify the profiling command of the backend. A profiler contains commands to push the model to mobile device, run the model
+    on the mobile device, get stdout from the mobile device, and related operations.
     """
+
     def profile(self):
         """ Main steps of ``Profiler.profile()`` includes 1) push the model file to edge devices, 2) run models in required times
         and get back running results. Return the running results on edge device.
@@ -138,13 +139,14 @@ class BaseParser:
     """
     Parse the profiled results. A parser parses the stdout from devices runner and get required metrics.
     """
+
     def parse(self, content):
         """ A string parser to parse profiled results value from the standard output of devices runner. This method should return the instance
         class itself.
 
         @params
-        
-        content: the standard output from device       
+
+        content: the standard output from device
         """
         return self
 
@@ -154,14 +156,15 @@ class BaseParser:
         """
         pass
 
+
 class DebugBackend(BaseBackend):
     """ For debug use when there is no backend available. All latency value are randomly generated.
     """
-    
-    def profile(self, converted_model, metrics = ['latency'], input_shape = None, **kwargs):
+
+    def profile(self, converted_model, metrics=['latency'], input_shape=None, **kwargs):
         import random
         from nn_meter.builder.backend_meta.utils import Latency, ProfiledResults
-        latency = Latency(random.randrange(0, 10000) / 100, random.randrange(0, 1000) / 1000) 
+        latency = Latency(random.randrange(0, 10000) / 100, random.randrange(0, 1000) / 1000)
         return ProfiledResults({'latency': latency}).get(metrics)
 
     def test_connection(self):
@@ -172,10 +175,10 @@ class DebugBackend(BaseBackend):
 
 
 def connect_backend(backend_name):
-    """ 
+    """
     Return the required backend class, and feed params to the backend. Supporting backend: tflite_cpu, tflite_gpu, openvino_vpu.
-    
-    Available backend and corresponding configs: 
+
+    Available backend and corresponding configs:
     - For backend based on TFLite platform: {
         'REMOTE_MODEL_DIR': path to the folder (on mobile device) where temporary models will be copied to.
         'BENCHMARK_MODEL_PATH': path (on android device) where the binary file `benchmark_model` is deployed.
@@ -190,11 +193,11 @@ def connect_backend(backend_name):
         'DEVICE_SERIAL': serial id of the device
         'DATA_TYPE': data type of the model (e.g., fp16, fp32)
     }
-    
+
     The config can be declared and modified after create a workspace. Users could follow guidance from ./docs/builder/backend.md
-    
+
     @params:
-    backend_name: name of backend (subclass instance of `BaseBackend`). 
+    backend_name: name of backend (subclass instance of `BaseBackend`).
     """
     if backend_name in __REG_BACKENDS__:
         backend_info = __REG_BACKENDS__[backend_name]
@@ -206,7 +209,7 @@ def connect_backend(backend_name):
 
     module = backend_info["class_module"]
     name = backend_info["class_name"]
-    backend_module = importlib.import_module(module)   
+    backend_module = importlib.import_module(module)
     backend_cls = getattr(backend_module, name)
 
     # load configs from workspace

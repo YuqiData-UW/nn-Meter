@@ -5,7 +5,7 @@ import subprocess
 
 
 def patch_frozenpb(graph_path, interpreter_path):
-    """ 
+    """
     Patch a frozen pb file to make it compatible with Movidius VPU and then return the path to the patched pb file.
     @params:
 

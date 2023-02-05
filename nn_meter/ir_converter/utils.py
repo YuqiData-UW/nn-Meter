@@ -11,26 +11,26 @@ logging = logging.getLogger("nn-Meter")
 
 def model_file_to_graph(filename: str, model_type: str, input_shape=(1, 3, 224, 224), apply_nni=False):
     """
-    read the given file and convert the model in the file content to nn-Meter IR graph object 
+    read the given file and convert the model in the file content to nn-Meter IR graph object
     @params:
     filename: string to specify the location of the file
-    
+
     model: the model to be predicted, allowed file format include
         - the path to a saved tensorflow model file (*.pb), `model_type` must be set to "pb"
         - string to specify the name of a built-in torch model from the torchvision model zoo, `model_type` must be set to "torch"
         - the path to a saved ONNX model file (*.onnx), `model_type` must be set to "onnx"
         - the path to a saved dictionary object following nn-Meter-IR format (*.json), `model_type` must be set to "nnmeter-ir"
         - the path to a saved dictionary object following NNI-IR format(*.json), `model_type` must be set to "nni-ir"
-        
+
     model_type:  string to specify the type of parameter model, allowed items are ["pb", "torch", "onnx", "nnmeter-ir", "nni-ir"]
-    
-    input_shape: the shape of input tensor for inference (if necessary), a random tensor according to the shape will be generated and used. This parameter is only 
+
+    input_shape: the shape of input tensor for inference (if necessary), a random tensor according to the shape will be generated and used. This parameter is only
         accessed when model_type == 'torch'
-    
-    apply_nni: switch the torch converter used for torch model parsing. If apply_nni==True, NNI-based converter is used for torch model conversion, which requires 
-        nni>=2.4 installation and should use nn interface from NNI `import nni.retiarii.nn.pytorch as nn` to define the PyTorch modules. Otherwise Onnx-based torch 
-        converter is used, which requires onnx installation (well tested version is onnx>=1.9.0). NNI-based converter is much faster while the conversion is unstable 
-        as it could fail in some case. Onnx-based converter is much slower but stable compared to NNI-based converter. This parameter is only accessed when 
+
+    apply_nni: switch the torch converter used for torch model parsing. If apply_nni==True, NNI-based converter is used for torch model conversion, which requires
+        nni>=2.4 installation and should use nn interface from NNI `import nni.retiarii.nn.pytorch as nn` to define the PyTorch modules. Otherwise Onnx-based torch
+        converter is used, which requires onnx installation (well tested version is onnx>=1.9.0). NNI-based converter is much faster while the conversion is unstable
+        as it could fail in some case. Onnx-based converter is much slower but stable compared to NNI-based converter. This parameter is only accessed when
         model_type == 'torch'
     """
     if model_type == "onnx":
@@ -80,16 +80,16 @@ def model_file_to_graph(filename: str, model_type: str, input_shape=(1, 3, 224, 
 
 def model_to_graph(model, model_type, input_shape=(1, 3, 224, 224), apply_nni=False):
     """
-    convert the given model to nn-Meter IR graph object 
+    convert the given model to nn-Meter IR graph object
     @params:
     model: the model object for converting, allowed file format include
         - pytorch model object (nn.Module), `model_type` must be set to "torch"
         - ONNX model object, `model_type` must be set to "onnx"
         - dictionary object following NNI-IR format, `model_type` must be set to "nni-ir"
-        
+
     model_type:  string to specify the type of parameter model, allowed items are ["torch", "onnx", "nnmeter-ir", "nni-ir"]
-    
-    input_shape: the shape of input tensor for inference (if necessary), a random tensor according to the shape will be generated and used. This parameter is only 
+
+    input_shape: the shape of input tensor for inference (if necessary), a random tensor according to the shape will be generated and used. This parameter is only
         accessed when model_type == 'torch'
     """
     if model_type == "onnx":
@@ -99,7 +99,7 @@ def model_to_graph(model, model_type, input_shape=(1, 3, 224, 224), apply_nni=Fa
     elif model_type == "nni-ir":
         return nni_model_to_graph(model)
     elif model_type == "nnmeter-ir":
-        return model # nnmeter-ir doesn't need any post-process
+        return model  # nnmeter-ir doesn't need any post-process
     else:
         raise ValueError(f"Unsupported model type: {model_type}")
 
@@ -118,21 +118,23 @@ def torch_model_to_graph(model, input_shape=(1, 3, 224, 224), apply_nni=False):
     torch = try_import_torch()
     args = torch.randn(*input_shape)
     try:
-        # if the test model has no parameters (such as activation ops), there will be error when calling ``model.parameters``
+        # if the test model has no parameters (such as activation ops), there will
+        # be error when calling ``model.parameters``
         if next(model.parameters()).is_cuda:
             args = args.to("cuda")
-    except:
+    except BaseException:
         pass
-    if apply_nni: 
-        # apply NNI-based torch converter, which requires nni>=2.4 installation and should use nn interface from NNI 
+    if apply_nni:
+        # apply NNI-based torch converter, which requires nni>=2.4 installation and should use nn interface from NNI
         # `import nni.retiarii.nn.pytorch as nn` to define the PyTorch modules.
         try:
             logging.info("NNI-based Torch Converter is applied for model conversion")
             converter = NNIBasedTorchConverter(model, args)
-        except:
-            raise NotImplementedError("Your model is not fully converted by NNI-based converter. Please set apply_nni=False and try again.")
+        except BaseException:
+            raise NotImplementedError(
+                "Your model is not fully converted by NNI-based converter. Please set apply_nni=False and try again.")
     else:
-        # apply Onnx-based torch converter, which requires onnx installation (well tested version is onnx==1.9.0) 
+        # apply Onnx-based torch converter, which requires onnx installation (well tested version is onnx==1.9.0)
         # and the conversion is more stable
         logging.info("Onnx-based Torch Converter is applied for model conversion")
         converter = OnnxBasedTorchConverter(model, args)

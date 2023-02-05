@@ -47,7 +47,7 @@ class ShapeInference:
         "FusedBatchNormV2",
         "FusedBatchNormV3",
         "BiasAdd",
-        
+
         "Relu",
         "Relu6",
         "Selu",
@@ -971,11 +971,10 @@ class ShapeInference:
                 graph[node_name]["attr"]["input_shape"] = copy.deepcopy(input_shape)
             logging.info(
                 "Input shape of %s op is %s." % (node_name, str(input_shape))
-                )
+            )
             logging.info(
                 "Output shape of %s op is %s." % (node_name, str(output_shape))
             )
-
 
         # Pass #2
         # This is a patching for back-end, since backend extract shapes from

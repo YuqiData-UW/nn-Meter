@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.metrics import mean_squared_error
 
 
-def get_accuracy(y_pred, y_true, threshold = 0.01):
+def get_accuracy(y_pred, y_true, threshold=0.01):
     a = (y_true - y_pred) / y_true
     b = np.where(abs(a) <= threshold)
     return len(b[0]) / len(y_true)
@@ -14,8 +14,8 @@ def latency_metrics(y_pred, y_true):
     """
     evaluation metrics for prediction performance
     """
-    y_true=np.array(y_true)
-    y_pred=np.array(y_pred)
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
     rmspe = (np.sqrt(np.mean(np.square((y_true - y_pred) / y_true)))) * 100
     rmse = np.sqrt(mean_squared_error(y_pred, y_true))
     acc5 = get_accuracy(y_pred, y_true, threshold=0.05)

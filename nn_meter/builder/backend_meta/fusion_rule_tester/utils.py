@@ -40,7 +40,7 @@ if os.path.isfile(os.path.join(__user_config_folder__, __registry_cfg_filename__
         __REG_TESTCASES__ = registry_modules["testcases"]
 
 
-def get_operator_by_name(operator_name, input_shape, config = None, implement = None):
+def get_operator_by_name(operator_name, input_shape, config=None, implement=None):
     """ get operator information by builtin name
     """
     if operator_name in __REG_OPERATORS__ and implement in __REG_OPERATORS__[operator_name]:
@@ -66,7 +66,7 @@ def get_operator_by_name(operator_name, input_shape, config = None, implement = 
     operator = operator_cls.get_model()
     output_shape = operator_cls.get_output_shape()
     op_is_two_inputs = operator_cls.get_is_two_inputs()
-    
+
     return operator, output_shape, op_is_two_inputs
 
 
@@ -79,7 +79,7 @@ def get_special_testcases_by_name(testcase, implement=None):
         return getattr(testcase_module, testcase_module_name)
 
     elif testcase in __BUILTIN_TESTCASES__:
-        assert implement != None
+        assert implement is not None
         if implement == 'tensorflow':
             from .build_tf_models import MultipleOutNodes
             return MultipleOutNodes
@@ -165,7 +165,8 @@ def save_model(model, model_path, implement):
         return model_path + '.onnx'
 
     else:
-        import pdb; pdb.set_trace()
+        import pdb
+        pdb.set_trace()
         raise NotImplementedError('You must choose one implementation of kernel from "tensorflow" or "pytorch"')
 
 

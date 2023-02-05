@@ -110,7 +110,6 @@ class Inception3(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.dropout = nn.Dropout()
         self.fc = nn.Linear(2048, num_classes)
-        
 
     def _transform_input(self, x):
         if self.transform_input:

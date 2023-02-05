@@ -59,18 +59,17 @@ class ShapeFetcher:
         for tensor in output_tensors_to_fetch:
             output_shape_tensors.append(self.tf.compat.v1.shape(tensor))
 
-
         intput_shape_results = []
         output_shape_results = []
         with self.tf.compat.v1.Session(graph=self.graph) as sess:
             fake_input = np.random.randn(1, self.imsize, self.imsize, 3)
             for shape_tensor in input_shape_tensors:
                 intput_shape_results.append(sess.run(
-                        shape_tensor, feed_dict={self.graph_input_tensor: fake_input}
-                    ).tolist())
+                    shape_tensor, feed_dict={self.graph_input_tensor: fake_input}
+                ).tolist())
             for shape_tensor in output_shape_tensors:
                 output_shape_results.append(sess.run(
-                        shape_tensor, feed_dict={self.graph_input_tensor: fake_input}
-                    ).tolist())
+                    shape_tensor, feed_dict={self.graph_input_tensor: fake_input}
+                ).tolist())
 
         return intput_shape_results, output_shape_results

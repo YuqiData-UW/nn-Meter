@@ -66,4 +66,3 @@ class MultipleOutNodes(BaseTestCase):
 
     def _model_dwconv(self):
         raise NotImplementedError
-

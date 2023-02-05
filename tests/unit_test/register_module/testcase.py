@@ -1,6 +1,7 @@
 from tensorflow import keras
 from nn_meter.builder.backend_meta.fusion_rule_tester import BaseTestCase
 
+
 class MyTestCase(BaseTestCase):
     name = 'MyTestCase'
     cases = {

@@ -10,7 +10,7 @@ logging = logging.getLogger("nn-Meter")
 
 
 class TorchBlock(BaseBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         self.config = config
         self.input_shape = [config["CIN"], config["HW"], config["HW"]]
         self.input_tensor_shape = [self.input_shape]
@@ -57,7 +57,7 @@ class TorchBlock(BaseBlock):
 
 
 class ConvBnRelu(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         conv_op = Conv(self.input_shape, config)
@@ -65,7 +65,7 @@ class ConvBnRelu(TorchBlock):
 
         bn_op = BN(out_shape, config)
         self.bn_op, out_shape = bn_op.get_model(), bn_op.get_output_shape()
-        
+
         relu_op = Relu(out_shape, config)
         self.relu_op = relu_op.get_model()
 
@@ -74,7 +74,7 @@ class ConvBnRelu(TorchBlock):
 
 
 class ConvBnRelu6(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         conv_op = Conv(self.input_shape, config)
@@ -82,7 +82,7 @@ class ConvBnRelu6(TorchBlock):
 
         bn_op = BN(out_shape, config)
         self.bn_op, out_shape = bn_op.get_model(), bn_op.get_output_shape()
-        
+
         relu6_op = Relu6(out_shape, config)
         self.relu6_op = relu6_op.get_model()
 
@@ -91,7 +91,7 @@ class ConvBnRelu6(TorchBlock):
 
 
 class ConvBn(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         conv_op = Conv(self.input_shape, config)
@@ -105,12 +105,12 @@ class ConvBn(TorchBlock):
 
 
 class ConvRelu(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         conv_op = Conv(self.input_shape, config)
         self.conv_op, out_shape = conv_op.get_model(), conv_op.get_output_shape()
-        
+
         relu_op = Relu(out_shape, config)
         self.relu_op = relu_op.get_model()
 
@@ -119,12 +119,12 @@ class ConvRelu(TorchBlock):
 
 
 class ConvRelu6(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         conv_op = Conv(self.input_shape, config)
         self.conv_op, out_shape = conv_op.get_model(), conv_op.get_output_shape()
-        
+
         relu6_op = Relu6(out_shape, config)
         self.relu6_op = relu6_op.get_model()
 
@@ -133,12 +133,12 @@ class ConvRelu6(TorchBlock):
 
 
 class ConvHswish(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         conv_op = Conv(self.input_shape, config)
         self.conv_op, out_shape = conv_op.get_model(), conv_op.get_output_shape()
-        
+
         hswish_op = Hswish(out_shape, config)
         self.hswish_op = hswish_op.get_model()
 
@@ -147,7 +147,7 @@ class ConvHswish(TorchBlock):
 
 
 class ConvBlock(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         conv_op = Conv(self.input_shape, config)
@@ -158,7 +158,7 @@ class ConvBlock(TorchBlock):
 
 
 class ConvBnHswish(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         conv_op = Conv(self.input_shape, config)
@@ -166,7 +166,7 @@ class ConvBnHswish(TorchBlock):
 
         bn_op = BN(out_shape, config)
         self.bn_op, out_shape = bn_op.get_model(), bn_op.get_output_shape()
-        
+
         hswish_op = Hswish(out_shape, config)
         self.hswish_op = hswish_op.get_model()
 
@@ -175,7 +175,7 @@ class ConvBnHswish(TorchBlock):
 
 
 class ConvBnReluMaxPool(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         conv_op = Conv(self.input_shape, config)
@@ -183,10 +183,10 @@ class ConvBnReluMaxPool(TorchBlock):
 
         bn_op = BN(out_shape, config)
         self.bn_op, out_shape = bn_op.get_model(), bn_op.get_output_shape()
-        
+
         relu_op = Relu(out_shape, config)
         self.relu_op, out_shape = relu_op.get_model(), relu_op.get_output_shape()
-        
+
         maxpool_op = MaxPool(out_shape, config)
         self.maxpool_op = maxpool_op.get_model()
 
@@ -195,7 +195,7 @@ class ConvBnReluMaxPool(TorchBlock):
 
 
 class DwConvBn(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         dwconv_op = DwConv(self.input_shape, config)
@@ -209,12 +209,12 @@ class DwConvBn(TorchBlock):
 
 
 class DwConvRelu(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         dwconv_op = DwConv(self.input_shape, config)
         self.dwconv_op, out_shape = dwconv_op.get_model(), dwconv_op.get_output_shape()
-        
+
         relu_op = Relu(out_shape, config)
         self.relu_op = relu_op.get_model()
 
@@ -223,12 +223,12 @@ class DwConvRelu(TorchBlock):
 
 
 class DwConvRelu6(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         dwconv_op = DwConv(self.input_shape, config)
         self.dwconv_op, out_shape = dwconv_op.get_model(), dwconv_op.get_output_shape()
-        
+
         relu6_op = Relu6(out_shape, config)
         self.relu6_op = relu6_op.get_model()
 
@@ -237,7 +237,7 @@ class DwConvRelu6(TorchBlock):
 
 
 class DwConvBnRelu(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         dwconv_op = DwConv(self.input_shape, config)
@@ -245,7 +245,7 @@ class DwConvBnRelu(TorchBlock):
 
         bn_op = BN(out_shape, config)
         self.bn_op, out_shape = bn_op.get_model(), bn_op.get_output_shape()
-        
+
         relu_op = Relu(out_shape, config)
         self.relu_op = relu_op.get_model()
 
@@ -254,7 +254,7 @@ class DwConvBnRelu(TorchBlock):
 
 
 class DwConvBnRelu6(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         dwconv_op = DwConv(self.input_shape, config)
@@ -262,7 +262,7 @@ class DwConvBnRelu6(TorchBlock):
 
         bn_op = BN(out_shape, config)
         self.bn_op, out_shape = bn_op.get_model(), bn_op.get_output_shape()
-        
+
         relu6_op = Relu6(out_shape, config)
         self.relu6_op = relu6_op.get_model()
 
@@ -271,7 +271,7 @@ class DwConvBnRelu6(TorchBlock):
 
 
 class DwConvBlock(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         dwconv_op = DwConv(self.input_shape, config)
@@ -282,7 +282,7 @@ class DwConvBlock(TorchBlock):
 
 
 class ConvBnHswish(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         dwconv_op = DwConv(self.input_shape, config)
@@ -290,7 +290,7 @@ class ConvBnHswish(TorchBlock):
 
         bn_op = BN(out_shape, config)
         self.bn_op, out_shape = bn_op.get_model(), bn_op.get_output_shape()
-        
+
         hswish_op = Hswish(out_shape, config)
         self.hswish_op = hswish_op.get_model()
 
@@ -299,7 +299,7 @@ class ConvBnHswish(TorchBlock):
 
 
 class MaxPoolBlock(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         maxpool_op = MaxPool(self.input_shape, config)
@@ -310,7 +310,7 @@ class MaxPoolBlock(TorchBlock):
 
 
 class AvgPoolBlock(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         avgpool_op = AvgPool(self.input_shape, config)
@@ -321,7 +321,7 @@ class AvgPoolBlock(TorchBlock):
 
 
 class FCBlock(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         self.config = config
         self.input_shape = [config["CIN"]]
         self.input_tensor_shape = [self.input_shape]
@@ -335,14 +335,14 @@ class FCBlock(TorchBlock):
 
 
 class ConcatBlock(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         self.config = config
         self.input_shape = [[cin, config["HW"], config["HW"]]
-                       for cin in [config['CIN1'], config['CIN2'], config['CIN3'], config['CIN4']]
-                       if cin != 0]
+                            for cin in [config['CIN1'], config['CIN2'], config['CIN3'], config['CIN4']]
+                            if cin != 0]
         self.input_tensor_shape = self.input_shape
         self.batch_size = batch_size
-        
+
         concat_op = Concat(self.input_shape, config)
         self.concat_op = concat_op.get_model()
 
@@ -359,7 +359,7 @@ class ConcatBlock(TorchBlock):
 
 
 class SplitBlock(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         split_op = Split(self.input_shape, config)
@@ -378,7 +378,7 @@ class SplitBlock(TorchBlock):
 
 
 class ChannelShuffle(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
     def get_model(self):
@@ -397,7 +397,7 @@ class ChannelShuffle(TorchBlock):
 
 
 class SEBlock(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         se_op = SE(self.input_shape, config)
@@ -408,7 +408,7 @@ class SEBlock(TorchBlock):
 
 
 class GlobalAvgPoolBlock(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         self.config = config
         self.input_shape = [config["HW"], config["HW"], config["CIN"]]
         self.input_tensor_shape = [self.input_shape]
@@ -422,12 +422,12 @@ class GlobalAvgPoolBlock(TorchBlock):
 
 
 class BnRelu(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         bn_op = BN(self.input_shape, config)
         self.bn_op, out_shape = bn_op.get_model(), bn_op.get_output_shape()
-        
+
         relu_op = Relu(out_shape, config)
         self.relu_op = relu_op.get_model()
 
@@ -436,7 +436,7 @@ class BnRelu(TorchBlock):
 
 
 class BnBlock(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         bn_op = BN(self.input_shape, config)
@@ -447,7 +447,7 @@ class BnBlock(TorchBlock):
 
 
 class HswishBlock(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         hswish_op = Hswish(self.input_shape, config)
@@ -458,7 +458,7 @@ class HswishBlock(TorchBlock):
 
 
 class ReluBlock(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         relu_op = Relu(self.input_shape, config)
@@ -469,7 +469,7 @@ class ReluBlock(TorchBlock):
 
 
 class AddRelu(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         add_op = Add(self.input_shape, config)
@@ -494,9 +494,9 @@ class AddRelu(TorchBlock):
 
 
 class AddBlock(TorchBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
-        
+
         add_op = Add(self.input_shape, config)
         self.add_op = add_op.get_model()
 

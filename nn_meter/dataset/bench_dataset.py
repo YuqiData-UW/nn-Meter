@@ -11,6 +11,7 @@ logging = logging.getLogger("nn-Meter")
 
 __user_dataset_folder__ = os.path.join(get_user_data_folder(), 'dataset')
 
+
 def bench_dataset(url="https://github.com/microsoft/nn-Meter/releases/download/v1.0-data/datasets.zip",
                   data_folder=__user_dataset_folder__):
     if not os.path.isdir(data_folder):
@@ -20,12 +21,13 @@ def bench_dataset(url="https://github.com/microsoft/nn-Meter/releases/download/v
 
     datasets = glob(os.path.join(data_folder, "**.jsonl"))
     return datasets
-        
+
+
 if __name__ == '__main__':
 
     datasets = bench_dataset()
     hws = list_latency_predictors()
-    
+
     for hw in hws:
         hw_name, hw_version = hw["name"], hw["version"]
         predictor = load_latency_predictor(hw_name, hw_version)
@@ -39,7 +41,7 @@ if __name__ == '__main__':
                     pred_lat = predictor.predict(graph, model_type="nnmeter-ir")
                     real_lat = item[hw_name]
                     logging.result(f'{filename}[{i}]: predict: {pred_lat}, real: {real_lat}')
-                    if real_lat != None:
+                    if real_lat is not None:
                         True_lat.append(real_lat)
                         Pred_lat.append(pred_lat)
                         index += 1

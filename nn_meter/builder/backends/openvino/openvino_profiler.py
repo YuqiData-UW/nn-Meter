@@ -28,7 +28,7 @@ class OpenVINOProfiler(BaseProfiler):
         self._graph_path = graph_path
         self._dst_graph_path = dst_graph_path
 
-    def profile(self, shapes, retry = 2, **kwargs):
+    def profile(self, shapes, retry=2, **kwargs):
         interpreter_path = os.path.join(self._venv, 'bin/python')
         pyver = get_pyver(interpreter_path)
 
@@ -77,7 +77,11 @@ class OpenVINOProfiler(BaseProfiler):
                         shell=True,
                         timeout=30,
                     )
-                    output = open(os.path.join(self._dst_graph_path, 'benchmark_detailed_counters_report.csv'), 'r').read()
+                    output = open(
+                        os.path.join(
+                            self._dst_graph_path,
+                            'benchmark_detailed_counters_report.csv'),
+                        'r').read()
                     break
                 except subprocess.TimeoutExpired as e:
                     print(e)

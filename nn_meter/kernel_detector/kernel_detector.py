@@ -46,8 +46,10 @@ class KernelDetector:
             kernel = self._layer_kernel_dict.get(layer)
 
             if kernel:
-                outbounds = [fusion_graph.find_root(outbound) for outbound in fusion_graph.get_outbounds(i)]
-                outbounds = [self._layer_kernel_dict[outbound] for outbound in outbounds]
+                outbounds = [fusion_graph.find_root(
+                    outbound) for outbound in fusion_graph.get_outbounds(i)]
+                outbounds = [self._layer_kernel_dict[outbound]
+                             for outbound in outbounds]
 
                 for outbound in outbounds:
                     outbound["inbounds"].append(kernel["name"])
@@ -74,7 +76,8 @@ class KernelDetector:
             type = types[0]
             attr = self.model_graph.get_node_attr(layer)["attr"]
             input_shape = self.model_graph.get_node_attr(layer)["input_shape"]
-            output_shape = self.model_graph.get_node_attr(layer)["output_shape"]
+            output_shape = self.model_graph.get_node_attr(layer)[
+                "output_shape"]
 
             # Remove const from first biasadd of hswish
             if type == "hswish":

@@ -29,7 +29,7 @@ class BasicFusion(BaseTestCase):
         if op1_alias == op2_alias:
             op1_alias += '_1'
             op2_alias += '_2'
-        
+
         self.latency[op1_alias] = Latency(testcase[op1_alias]['latency'])
         self.latency[op2_alias] = Latency(testcase[op2_alias]['latency'])
         self.latency['ops'] = self.latency[op1_alias] + self.latency[op2_alias]
@@ -64,10 +64,10 @@ class BasicFusion(BaseTestCase):
 def generate_testcases():
     testcases_list = {}
     from nn_meter.builder import builder_config
-    config =  builder_config.get_module('ruletest')
+    config = builder_config.get_module('ruletest')
     implement = builder_config.get('IMPLEMENT', 'ruletest')
 
-    if config['BASIC_TESTCASES'] != None:
+    if config['BASIC_TESTCASES'] is not None:
         testcases = [case.split('_') for case in config['BASIC_TESTCASES']]
         d1_required_layers = config['LAYERS_1D']
         for op1, op2 in testcases:
@@ -90,8 +90,8 @@ def generate_testcases():
                 'implement': implement
             })
             testcases_list[bf_cls.name] = bf_cls
-            
-    if config['OTHER_TESTCASES'] != None:
+
+    if config['OTHER_TESTCASES'] is not None:
         for testcase in config['OTHER_TESTCASES']:
             testcases_list[testcase] = get_special_testcases_by_name(testcase, implement=implement)
 

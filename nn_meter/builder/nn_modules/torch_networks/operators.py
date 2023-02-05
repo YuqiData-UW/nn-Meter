@@ -12,12 +12,18 @@ This file contains the torch implementation of operators
 
 #---------------------- convolution layer ----------------------#
 
+
 class Conv(BaseOperator):
     def get_model(self):
         cin = self.input_shape[0]
         cout = cin if "COUT" not in self.config else self.config["COUT"]
         padding = get_padding(self.config["KERNEL_SIZE"], self.config["STRIDES"], self.input_shape[1])
-        return nn.Conv2d(cin, cout, kernel_size=self.config["KERNEL_SIZE"], stride=self.config["STRIDES"], padding=padding)
+        return nn.Conv2d(
+            cin,
+            cout,
+            kernel_size=self.config["KERNEL_SIZE"],
+            stride=self.config["STRIDES"],
+            padding=padding)
 
     def get_output_shape(self):
         cout = self.input_shape[0] if "COUT" not in self.config else self.config["COUT"]
@@ -30,7 +36,13 @@ class DwConv(BaseOperator):
     def get_model(self):
         cin = self.input_shape[0]
         padding = get_padding(self.config["KERNEL_SIZE"], self.config["STRIDES"], self.input_shape[1])
-        return nn.Conv2d(cin, cin, kernel_size=self.config["KERNEL_SIZE"], stride=self.config["STRIDES"], padding=padding, groups=cin)
+        return nn.Conv2d(
+            cin,
+            cin,
+            kernel_size=self.config["KERNEL_SIZE"],
+            stride=self.config["STRIDES"],
+            padding=padding,
+            groups=cin)
 
     def get_output_shape(self):
         cin = self.input_shape[0]
@@ -45,13 +57,20 @@ class ConvTrans(BaseOperator):
         cout = cin if "COUT" not in self.config else self.config["COUT"]
         padding = get_padding(self.config["KERNEL_SIZE"], self.config["STRIDES"], self.input_shape[1])
         output_padding = self.config["STRIDES"] + 2 * padding - self.config["KERNEL_SIZE"]
-        return nn.ConvTranspose2d(cin, cout, kernel_size=self.config["KERNEL_SIZE"], stride=self.config["STRIDES"], padding=padding, output_padding=output_padding)
+        return nn.ConvTranspose2d(
+            cin,
+            cout,
+            kernel_size=self.config["KERNEL_SIZE"],
+            stride=self.config["STRIDES"],
+            padding=padding,
+            output_padding=output_padding)
 
     def get_output_shape(self):
         cout = self.input_shape[0] if "COUT" not in self.config else self.config["COUT"]
         return [cout, self.input_shape[1] * self.config["STRIDES"], self.input_shape[2] * self.config["STRIDES"]]
 
 #------------------ normalization and pooling ------------------#
+
 
 class BN(BaseOperator):
     def get_model(self):
@@ -62,7 +81,7 @@ class BN(BaseOperator):
 class GlobalAvgpool(BaseOperator):
     def get_model(self):
         return nn.AdaptiveAvgPool2d([1, 1])
-    
+
     def get_output_shape(self):
         cin = self.input_shape[0]
         return [cin, 1, 1]
@@ -101,6 +120,7 @@ class AvgPool(BaseOperator):
 
 #------------------------ other modules ------------------------#
 
+
 class SE(BaseOperator):
     def get_model(self):
         class SE(nn.Module):
@@ -138,6 +158,7 @@ class FC(BaseOperator):
 
 #-------------------- activation function --------------------#
 
+
 class Relu(BaseOperator):
     def get_model(self):
         return nn.ReLU()
@@ -159,14 +180,17 @@ class Hswish(BaseOperator):
 
 #---------------------- basic operation ----------------------#
 
+
 class Reshape(BaseOperator):
     def get_model(self):
         if len(self.input_shape) == 3:
             self.output_shape = [self.input_shape[1], self.input_shape[2], self.input_shape[0]]
+
             def func(inputs):
                 return torch.reshape(inputs, [1] + self.output_shape)
         else:
             self.output_shape = [1, 2, int(self.input_shape[0] / 2)]
+
             def func(inputs):
                 return torch.reshape(inputs, [1] + self.output_shape)
         return func
@@ -182,7 +206,7 @@ class Add(BaseOperator):
         return func
 
     def get_output_shape(self):
-        if len(self.input_shape) == 2 and type(self.input_shape[0]) == list:
+        if len(self.input_shape) == 2 and isinstance(self.input_shape[0], list):
             output_shape = self.input_shape[0]
         else:
             output_shape = self.input_shape
@@ -199,11 +223,14 @@ class Concat(BaseOperator):
         return func
 
     def get_output_shape(self):
-        if len(self.input_shape) > 1 and type(self.input_shape[0]) == list: # e.g. [[3, 28, 28], [5, 28, 28]] -> [8, 28, 28]
+        if len(
+                self.input_shape) > 1 and isinstance(
+                self.input_shape[0],
+                list):  # e.g. [[3, 28, 28], [5, 28, 28]] -> [8, 28, 28]
             output_shape = [sum([i[0] for i in self.input_shape])] + self.input_shape[0][1:]
-        elif len(self.input_shape) == 3: # e.g. [4, 28, 28] -> [8, 28, 28]
+        elif len(self.input_shape) == 3:  # e.g. [4, 28, 28] -> [8, 28, 28]
             output_shape = [self.input_shape[0] * 2] + self.input_shape[1:]
-        else: # e.g. [1024] -> [2048]
+        else:  # e.g. [1024] -> [2048]
             output_shape = [self.input_shape[0] * 2]
         return output_shape
 
@@ -222,6 +249,7 @@ class Flatten(BaseOperator):
 class Split(BaseOperator):
     def get_model(self):
         cin = self.input_shape[0]
+
         def func(inputs):
             return torch.split(inputs, [cin // 2, cin - cin // 2], dim=1)
         return func

@@ -168,7 +168,7 @@ class FrozenPbParser:
 
         list_i_nodes = ["dilations", "strides", "ksize"]
         str_nodes = ["padding", "data_format"]
-        
+
         for attr_name in node.attr.keys():
             if attr_name in list_i_nodes:
                 attr_dict[attr_name] = [int(a) for a in node.attr[attr_name].list.i]

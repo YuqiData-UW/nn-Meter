@@ -78,13 +78,13 @@ class GNNDataset(torch.utils.data.Dataset):
                     self.latencies[obj['id']] = float(obj[self.device])
 
             _names = sorted(_names)
-            split_ratio = self.split_ratio if self.train else 1-self.split_ratio
+            split_ratio = self.split_ratio if self.train else 1 - self.split_ratio
             count = int(len(_names) * split_ratio)
 
             if self.train:
                 _model_names = _names[:count]
             else:
-                _model_names = _names[-1*count:]
+                _model_names = _names[-1 * count:]
 
             self.name_list.extend(_model_names)
 
@@ -95,7 +95,7 @@ class GNNDataset(torch.utils.data.Dataset):
                     model_data = obj['graph']
                     self.parse_model(model_name, model_data)
                     self.raw_data[model_name] = model_data
-    
+
     def construct_attrs(self):
         """
         Construct the attributes matrix for each model.
@@ -132,16 +132,16 @@ class GNNDataset(torch.utils.data.Dataset):
         node_data = self.raw_data[model_name][node_name]
         t_attr = torch.zeros(6)
         op_type = node_data['attr']['type']
-        if op_type =='Conv2D':
+        if op_type == 'Conv2D':
             weight_shape = node_data['attr']['attr']['weight_shape']
             kernel_size, _, in_c, out_c = weight_shape
-            stride, _= node_data['attr']['attr']['strides']
+            stride, _ = node_data['attr']['attr']['strides']
             _, h, w, _ = node_data['attr']['output_shape'][0]
             t_attr = torch.tensor([in_c, out_c, h, w, kernel_size, stride])
         elif op_type == 'DepthwiseConv2dNative':
             weight_shape = node_data['attr']['attr']['weight_shape']
             kernel_size, _, in_c, out_c = weight_shape
-            stride, _= node_data['attr']['attr']['strides']
+            stride, _ = node_data['attr']['attr']['strides']
             _, h, w, _ = node_data['attr']['output_shape'][0]
             t_attr = torch.tensor([in_c, out_c, h, w, kernel_size, stride])
         elif op_type == 'MatMul':
@@ -203,7 +203,7 @@ class GNNDataset(torch.utils.data.Dataset):
                     continue
                 out_id = name2id[node]
                 m_adj[cur_id][out_id] = 1
-        
+
         for idx in range(n_nodes):
             m_adj[idx][idx] = 1
 
@@ -238,7 +238,7 @@ class GNNDataloader(torch.utils.data.DataLoader):
             (adj, attrs), latency, op_types = self.dataset[gid]
             u, v = torch.nonzero(adj, as_tuple=True)
             graph = dgl.graph((u, v))
-            MAX_NORM = torch.tensor([1]*len(op_types) + [6963, 6963, 224, 224, 11, 4])
+            MAX_NORM = torch.tensor([1] * len(op_types) + [6963, 6963, 224, 224, 11, 4])
             attrs = attrs / MAX_NORM
             graph.ndata['h'] = attrs
             self.graphs[gid] = graph

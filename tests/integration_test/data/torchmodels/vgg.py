@@ -49,6 +49,7 @@ class VGG(nn.Module):
     def _initialize_weights(self):
         pass
 
+
 def make_layers(cfg, batch_norm=False):
     layers = []
     in_channels = 3

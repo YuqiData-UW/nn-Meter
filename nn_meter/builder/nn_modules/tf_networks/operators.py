@@ -5,11 +5,12 @@ import tensorflow as tf
 from tensorflow import keras
 from ..interface import BaseOperator
 
-''' 
+'''
 This file contains the keras implementation of operators
 '''
 
 #---------------------- convolution layer ----------------------#
+
 
 class Conv(BaseOperator):
     def get_model(self):
@@ -31,10 +32,10 @@ class Conv(BaseOperator):
 class DwConv(BaseOperator):
     def get_model(self):
         return keras.layers.DepthwiseConv2D(
-                kernel_size=self.config["KERNEL_SIZE"],
-                strides=self.config["STRIDES"],
-                padding="same"
-            )
+            kernel_size=self.config["KERNEL_SIZE"],
+            strides=self.config["STRIDES"],
+            padding="same"
+        )
 
     def get_output_shape(self):
         output_h = (self.input_shape[0] - 1) // self.config["STRIDES"] + 1
@@ -46,17 +47,18 @@ class ConvTrans(BaseOperator):
     def get_model(self):
         cout = self.input_shape[2] if "COUT" not in self.config else self.config["COUT"]
         return keras.layers.Conv2DTranspose(
-                cout,
-                kernel_size=self.config["KERNEL_SIZE"],
-                strides=self.config["STRIDES"],
-                padding="same"
-            )
+            cout,
+            kernel_size=self.config["KERNEL_SIZE"],
+            strides=self.config["STRIDES"],
+            padding="same"
+        )
 
     def get_output_shape(self):
         cout = self.input_shape[2] if "COUT" not in self.config else self.config["COUT"]
         return [self.input_shape[0] * self.config["STRIDES"], self.input_shape[1] * self.config["STRIDES"], cout]
 
 #------------------ normalization and pooling ------------------#
+
 
 class BN(BaseOperator):
     def get_model(self):
@@ -79,7 +81,7 @@ class MaxPool(BaseOperator):
             pool_size=self.config["KERNEL_SIZE"],
             strides=self.config["POOL_STRIDES"],
             padding="same"
-            )
+        )
 
     def get_output_shape(self):
         if "POOL_STRIDES" not in self.config:
@@ -97,7 +99,7 @@ class AvgPool(BaseOperator):
             pool_size=self.config["KERNEL_SIZE"],
             strides=self.config["POOL_STRIDES"],
             padding="same"
-            )
+        )
 
     def get_output_shape(self):
         if "POOL_STRIDES" not in self.config:
@@ -107,6 +109,7 @@ class AvgPool(BaseOperator):
         return [output_h, output_w, self.input_shape[2]]
 
 #------------------------ other modules ------------------------#
+
 
 class SE(BaseOperator):
     def get_model(self):
@@ -141,6 +144,7 @@ class FC(BaseOperator):
 
 #-------------------- activation function --------------------#
 
+
 class Relu(BaseOperator):
     def get_model(self):
         return keras.layers.ReLU()
@@ -169,14 +173,17 @@ class Hswish(BaseOperator):
 
 #---------------------- basic operation ----------------------#
 
+
 class Reshape(BaseOperator):
     def get_model(self):
         if len(self.input_shape) == 3:
             self.output_shape = [self.input_shape[2], self.input_shape[0], self.input_shape[1]]
+
             def func(inputs):
                 return tf.reshape(inputs, [1] + self.output_shape)
         else:
             self.output_shape = [1, 2, int(self.input_shape[0] / 2)]
+
             def func(inputs):
                 return tf.reshape(inputs, [1] + self.output_shape)
         return func
@@ -190,7 +197,7 @@ class Add(BaseOperator):
         return keras.layers.Add()
 
     def get_output_shape(self):
-        if len(self.input_shape) == 2 and type(self.input_shape[0]) == list:
+        if len(self.input_shape) == 2 and isinstance(self.input_shape[0], list):
             output_shape = self.input_shape[0]
         else:
             output_shape = self.input_shape
@@ -205,11 +212,14 @@ class Concat(BaseOperator):
         return keras.layers.Concatenate()
 
     def get_output_shape(self):
-        if len(self.input_shape) > 1 and type(self.input_shape[0]) == list: # e.g. [[28, 28, 3], [28, 28, 5]] -> [28, 28, 8]
+        if len(
+                self.input_shape) > 1 and isinstance(
+                self.input_shape[0],
+                list):  # e.g. [[28, 28, 3], [28, 28, 5]] -> [28, 28, 8]
             output_shape = self.input_shape[0][:-1] + [sum([i[-1] for i in self.input_shape])]
-        elif len(self.input_shape) == 3: # e.g. [28, 28, 4] -> [28, 28, 8]
+        elif len(self.input_shape) == 3:  # e.g. [28, 28, 4] -> [28, 28, 8]
             output_shape = self.input_shape[0:-1] + [self.input_shape[-1] * 2]
-        else: # e.g. [1024] -> [2048]
+        else:  # e.g. [1024] -> [2048]
             output_shape = [self.input_shape[0] * 2]
         return output_shape
 

@@ -10,19 +10,20 @@ logging = logging.getLogger("nn-Meter")
 
 
 class TFBlock(BaseBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         self.config = config
         self.input_shape = [config["HW"], config["HW"], config["CIN"]]
         self.input_tensor_shape = [self.input_shape]
         self.batch_size = batch_size
 
     def test_block(self):
-        import os, shutil
+        import os
+        import shutil
         from typing import List
         model_path = "./temp_model"
         model = self.get_model()
         model_output = model(get_inputs_by_shapes(self.input_tensor_shape))
-        
+
         # check model save and reload
         keras.models.save_model(model, model_path)
         restore_model = keras.models.load_model(model_path)
@@ -67,7 +68,7 @@ class TFBlock(BaseBlock):
 
 
 class ConvBnRelu(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         conv_op = Conv(self.input_shape, config)
@@ -75,7 +76,7 @@ class ConvBnRelu(TFBlock):
 
         bn_op = BN(out_shape, config)
         self.bn_op, out_shape = bn_op.get_model(), bn_op.get_output_shape()
-        
+
         relu_op = Relu(out_shape, config)
         self.relu_op = relu_op.get_model()
 
@@ -84,7 +85,7 @@ class ConvBnRelu(TFBlock):
 
 
 class ConvBnRelu6(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         conv_op = Conv(self.input_shape, config)
@@ -92,7 +93,7 @@ class ConvBnRelu6(TFBlock):
 
         bn_op = BN(out_shape, config)
         self.bn_op, out_shape = bn_op.get_model(), bn_op.get_output_shape()
-        
+
         relu6_op = Relu6(out_shape, config)
         self.relu6_op = relu6_op.get_model()
 
@@ -116,7 +117,7 @@ class ConvBnRelu6(TFBlock):
 
 
 class ConvBn(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         conv_op = Conv(self.input_shape, config)
@@ -130,12 +131,12 @@ class ConvBn(TFBlock):
 
 
 class ConvRelu(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         conv_op = Conv(self.input_shape, config)
         self.conv_op, out_shape = conv_op.get_model(), conv_op.get_output_shape()
-        
+
         relu_op = Relu(out_shape, config)
         self.relu_op = relu_op.get_model()
 
@@ -144,12 +145,12 @@ class ConvRelu(TFBlock):
 
 
 class ConvRelu6(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         conv_op = Conv(self.input_shape, config)
         self.conv_op, out_shape = conv_op.get_model(), conv_op.get_output_shape()
-        
+
         relu6_op = Relu6(out_shape, config)
         self.relu6_op = relu6_op.get_model()
 
@@ -171,12 +172,12 @@ class ConvRelu6(TFBlock):
 
 
 class ConvHswish(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         conv_op = Conv(self.input_shape, config)
         self.conv_op, out_shape = conv_op.get_model(), conv_op.get_output_shape()
-        
+
         hswish_op = Hswish(out_shape, config)
         self.hswish_op = hswish_op.get_model()
 
@@ -198,7 +199,7 @@ class ConvHswish(TFBlock):
 
 
 class ConvBlock(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         conv_op = Conv(self.input_shape, config)
@@ -209,7 +210,7 @@ class ConvBlock(TFBlock):
 
 
 class ConvBnHswish(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         conv_op = Conv(self.input_shape, config)
@@ -217,7 +218,7 @@ class ConvBnHswish(TFBlock):
 
         bn_op = BN(out_shape, config)
         self.bn_op, out_shape = bn_op.get_model(), bn_op.get_output_shape()
-        
+
         hswish_op = Hswish(out_shape, config)
         self.hswish_op = hswish_op.get_model()
 
@@ -241,7 +242,7 @@ class ConvBnHswish(TFBlock):
 
 
 class ConvBnReluMaxPool(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         conv_op = Conv(self.input_shape, config)
@@ -249,10 +250,10 @@ class ConvBnReluMaxPool(TFBlock):
 
         bn_op = BN(out_shape, config)
         self.bn_op, out_shape = bn_op.get_model(), bn_op.get_output_shape()
-        
+
         relu_op = Relu(out_shape, config)
         self.relu_op, out_shape = relu_op.get_model(), relu_op.get_output_shape()
-        
+
         maxpool_op = MaxPool(out_shape, config)
         self.maxpool_op = maxpool_op.get_model()
 
@@ -261,7 +262,7 @@ class ConvBnReluMaxPool(TFBlock):
 
 
 class DwConvBn(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         dwconv_op = DwConv(self.input_shape, config)
@@ -275,12 +276,12 @@ class DwConvBn(TFBlock):
 
 
 class DwConvRelu(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         dwconv_op = DwConv(self.input_shape, config)
         self.dwconv_op, out_shape = dwconv_op.get_model(), dwconv_op.get_output_shape()
-        
+
         relu_op = Relu(out_shape, config)
         self.relu_op = relu_op.get_model()
 
@@ -289,12 +290,12 @@ class DwConvRelu(TFBlock):
 
 
 class DwConvRelu6(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         dwconv_op = DwConv(self.input_shape, config)
         self.dwconv_op, out_shape = dwconv_op.get_model(), dwconv_op.get_output_shape()
-        
+
         relu6_op = Relu6(out_shape, config)
         self.relu6_op = relu6_op.get_model()
 
@@ -316,7 +317,7 @@ class DwConvRelu6(TFBlock):
 
 
 class DwConvBnRelu(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         dwconv_op = DwConv(self.input_shape, config)
@@ -324,7 +325,7 @@ class DwConvBnRelu(TFBlock):
 
         bn_op = BN(out_shape, config)
         self.bn_op, out_shape = bn_op.get_model(), bn_op.get_output_shape()
-        
+
         relu_op = Relu(out_shape, config)
         self.relu_op = relu_op.get_model()
 
@@ -333,7 +334,7 @@ class DwConvBnRelu(TFBlock):
 
 
 class DwConvBnRelu6(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         dwconv_op = DwConv(self.input_shape, config)
@@ -341,7 +342,7 @@ class DwConvBnRelu6(TFBlock):
 
         bn_op = BN(out_shape, config)
         self.bn_op, out_shape = bn_op.get_model(), bn_op.get_output_shape()
-        
+
         relu6_op = Relu6(out_shape, config)
         self.relu6_op = relu6_op.get_model()
 
@@ -365,7 +366,7 @@ class DwConvBnRelu6(TFBlock):
 
 
 class DwConvBlock(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         dwconv_op = DwConv(self.input_shape, config)
@@ -376,7 +377,7 @@ class DwConvBlock(TFBlock):
 
 
 class ConvBnHswish(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         dwconv_op = DwConv(self.input_shape, config)
@@ -384,7 +385,7 @@ class ConvBnHswish(TFBlock):
 
         bn_op = BN(out_shape, config)
         self.bn_op, out_shape = bn_op.get_model(), bn_op.get_output_shape()
-        
+
         hswish_op = Hswish(out_shape, config)
         self.hswish_op = hswish_op.get_model()
 
@@ -408,7 +409,7 @@ class ConvBnHswish(TFBlock):
 
 
 class MaxPoolBlock(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         maxpool_op = MaxPool(self.input_shape, config)
@@ -419,7 +420,7 @@ class MaxPoolBlock(TFBlock):
 
 
 class AvgPoolBlock(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         avgpool_op = AvgPool(self.input_shape, config)
@@ -430,7 +431,7 @@ class AvgPoolBlock(TFBlock):
 
 
 class FCBlock(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         self.config = config
         self.input_shape = [config["CIN"]]
         self.input_tensor_shape = [self.input_shape]
@@ -444,14 +445,14 @@ class FCBlock(TFBlock):
 
 
 class ConcatBlock(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         self.config = config
         self.input_shape = [[config["HW"], config["HW"], cin]
-                       for cin in [config['CIN1'], config['CIN2'], config['CIN3'], config['CIN4']]
-                       if cin != 0]
+                            for cin in [config['CIN1'], config['CIN2'], config['CIN3'], config['CIN4']]
+                            if cin != 0]
         self.input_tensor_shape = self.input_shape
         self.batch_size = batch_size
-        
+
         concat_op = Concat(self.input_shape, config)
         self.concat_op = concat_op.get_model()
 
@@ -470,7 +471,7 @@ class ConcatBlock(TFBlock):
 
 
 class SplitBlock(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         split_op = Split(self.input_shape, config)
@@ -491,7 +492,7 @@ class SplitBlock(TFBlock):
 
 
 class ChannelShuffle(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
     def get_model(self):
@@ -512,7 +513,7 @@ class ChannelShuffle(TFBlock):
 
 
 class SEBlock(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         se_op = SE(self.input_shape, config)
@@ -523,7 +524,7 @@ class SEBlock(TFBlock):
 
 
 class GlobalAvgPoolBlock(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         globalavgpool_op = GlobalAvgpool(self.input_shape, config)
@@ -534,12 +535,12 @@ class GlobalAvgPoolBlock(TFBlock):
 
 
 class BnRelu(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         bn_op = BN(self.input_shape, config)
         self.bn_op, out_shape = bn_op.get_model(), bn_op.get_output_shape()
-        
+
         relu_op = Relu(out_shape, config)
         self.relu_op = relu_op.get_model()
 
@@ -548,7 +549,7 @@ class BnRelu(TFBlock):
 
 
 class BnBlock(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         bn_op = BN(self.input_shape, config)
@@ -559,7 +560,7 @@ class BnBlock(TFBlock):
 
 
 class HswishBlock(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         hswish_op = Hswish(self.input_shape, config)
@@ -580,7 +581,7 @@ class HswishBlock(TFBlock):
 
 
 class ReluBlock(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         relu_op = Relu(self.input_shape, config)
@@ -591,7 +592,7 @@ class ReluBlock(TFBlock):
 
 
 class AddRelu(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
 
         add_op = Add(self.input_shape, config)
@@ -618,9 +619,9 @@ class AddRelu(TFBlock):
 
 
 class AddBlock(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
-        
+
         add_op = Add(self.input_shape, config)
         self.add_op = add_op.get_model()
 
@@ -639,7 +640,7 @@ class AddBlock(TFBlock):
 
 
 class GroupedConvBlock(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
         self.cout = self.input_shape[2] if "COUT" not in config else config["COUT"]
         self.num_groups = config['NUM_GROUPS']
@@ -655,13 +656,13 @@ class GroupedConvBlock(TFBlock):
 
             def call(self, inputs):
                 x = [keras.layers.Conv2D(
-                        filters=self.cout // self.num_groups,
-                        kernel_size=self.kernel_size,
-                        strides=self.strides,
-                        padding="same",
-                    )(x) for x in tf.split(inputs, self.num_groups, axis=3)
+                    filters=self.cout // self.num_groups,
+                    kernel_size=self.kernel_size,
+                    strides=self.strides,
+                    padding="same",
+                )(x) for x in tf.split(inputs, self.num_groups, axis=3)
                 ]
-                return tf.concat(x, axis=3)    
+                return tf.concat(x, axis=3)
 
         model = Model(self.cout, self.num_groups, self.config['KERNEL_SIZE'], self.config['STRIDES'])
         model(get_inputs_by_shapes(self.input_tensor_shape, self.batch_size))
@@ -669,7 +670,7 @@ class GroupedConvBlock(TFBlock):
 
 
 class MixedConvBlock(TFBlock):
-    def __init__(self, config, batch_size = 1):
+    def __init__(self, config, batch_size=1):
         super().__init__(config, batch_size)
         self.cout = self.input_shape[2] if "COUT" not in config else config["COUT"]
         self.num_groups = config['NUM_GROUPS']
@@ -684,13 +685,13 @@ class MixedConvBlock(TFBlock):
 
             def call(self, inputs):
                 x = [keras.layers.Conv2D(
-                        filters=self.cout // self.num_groups,
-                        kernel_size=i * 2 + 3,
-                        strides=self.strides,
-                        padding="same",
-                    )(x) for i, x in zip(range(self.num_groups), tf.split(inputs, self.num_groups, axis=3))
+                    filters=self.cout // self.num_groups,
+                    kernel_size=i * 2 + 3,
+                    strides=self.strides,
+                    padding="same",
+                )(x) for i, x in zip(range(self.num_groups), tf.split(inputs, self.num_groups, axis=3))
                 ]
-                return tf.concat(x, axis=3)    
+                return tf.concat(x, axis=3)
 
         model = Model(self.cout, self.num_groups, self.config['STRIDES'])
         model(get_inputs_by_shapes(self.input_tensor_shape, self.batch_size))

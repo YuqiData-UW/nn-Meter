@@ -6,6 +6,7 @@ from nn_meter.builder.kernel_predictor_builder import BaseFeatureParser, BaseCon
 class MyKernel(BaseBlock):
     ''' This kernel is built by Conv, BN, and Relu layer, which is the same as the builtin `conv-bn-relu` block.
     '''
+
     def __init__(self, config):
         self.config = config
         self.input_shape = [config["HW"], config["HW"], config["CIN"]]
@@ -55,7 +56,7 @@ class MySampler(BaseConfigSampler):
             }
             ncfgs.append(c)
         return ncfgs
-    
+
     def finegrained_config_sampling(self, sample_num, configs):
         ncfgs = []
         for cfg in configs:
@@ -76,6 +77,7 @@ class MySampler(BaseConfigSampler):
 class MyParser(BaseFeatureParser):
     ''' This parser utilized config "HW", "CIN", "COUT", "KERNEL_SIZE", "STRIDES", as well as the flops and parameter number as feature.
     '''
+
     def __init__(self, kernel_type):
         self.kernel_type = kernel_type
         self.needed_config = ["HW", "CIN", "COUT", "KERNEL_SIZE", "STRIDES"]

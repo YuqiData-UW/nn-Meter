@@ -18,7 +18,7 @@ def get_flops_params(kernel_type, config):
         return get_fc_flop_params(cin, cout)
 
 
-def collect_kernel_data(kernel_data, predict_label = 'latency'):
+def collect_kernel_data(kernel_data, predict_label='latency'):
     if isinstance(kernel_data, dict):
         return kernel_data
 
@@ -42,7 +42,7 @@ def collect_kernel_data(kernel_data, predict_label = 'latency'):
         for model_id in config[modules].keys():
             try:
                 config[modules][model_id][predict_label] = label[modules][model_id][predict_label]
-            except:
+            except BaseException:
                 pass
 
     return config

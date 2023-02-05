@@ -11,10 +11,10 @@ __user_config_folder__ = os.path.expanduser('~/.nn_meter/config')
 __registry_cfg_filename__ = 'registry.yaml'
 __predictors_cfg_filename__ = 'predictors.yaml'
 
-    
+
 def import_module(package_location, module_path, class_name):
     sys.path.append(package_location)
-    module = importlib.import_module(module_path)   
+    module = importlib.import_module(module_path)
     backend_cls = getattr(module, class_name)
     return backend_cls
 
@@ -30,7 +30,7 @@ def register_module(module_type, meta_file):
     # check necessary feature and run test script
     # for backend, check if there exits the default config file:
     if module_type == "backends":
-        if meta_data["defaultConfigFile"] != None and not os.path.isfile(meta_data["defaultConfigFile"]):
+        if meta_data["defaultConfigFile"] is not None and not os.path.isfile(meta_data["defaultConfigFile"]):
             raise ValueError(f"The default config file {meta_data['defaultConfigFile']} does not exist")
     elif module_type == "kernels":
         import_module(meta_data["package_location"], meta_data["sampler_module"], meta_data["sampler_name"])
@@ -60,13 +60,13 @@ def register_module(module_type, meta_file):
 def register_predictor(meta_file):
     with open(meta_file, "r") as fp:
         meta_data = yaml.load(fp, yaml.FullLoader)
-    
+
     # for predictors registration, load predictor information to '~/.nn_meter/config/predictors.yaml'
     builtin_name = meta_data["name"]
     with open(os.path.join(__user_config_folder__, __predictors_cfg_filename__), 'r') as fp:
         prev_info = yaml.load(fp, yaml.FullLoader)
     prev_info.append(meta_data)
-    
+
     with open(os.path.join(__user_config_folder__, __predictors_cfg_filename__), 'w') as fp:
         yaml.dump(prev_info, fp)
     logging.keyinfo(f"Successfully register predictor: {builtin_name}")
@@ -113,7 +113,7 @@ def unregister_module_with_implement(module_type, module_name, module_implement)
                 yaml.dump(prev_info, fp)
             success = True
             logging.keyinfo(f"Successfully unregister {module_name} ({module_implement}).")
-        except:
+        except BaseException:
             pass
     if not success:
         logging.keyinfo(f"Unregister failed: there is no module named {module_name} ({module_implement}).")

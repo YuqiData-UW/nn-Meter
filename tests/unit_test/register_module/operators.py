@@ -1,6 +1,7 @@
 import tensorflow.keras as keras
 from nn_meter.builder.nn_modules import BaseOperator
 
+
 class MyOp(BaseOperator):
     def get_model(self):
         cout = self.input_shape[2] if "COUT" not in self.config else self.config["COUT"]

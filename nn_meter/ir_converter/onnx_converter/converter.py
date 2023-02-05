@@ -74,7 +74,7 @@ class OnnxConverter:
 
     def convert(self):
         result = {}
-        
+
         sliced_tensors = set()
         selected_slice = set()
         for node in self.graph.node:
@@ -91,7 +91,7 @@ class OnnxConverter:
             inbounds = []
             if node.op_type == SLICE_TYPE and node.name not in selected_slice:
                 continue
-            
+
             for input_name in node.input:
                 if input_name in self.tensors:  # remove dummy ops
                     for pred_pred in self.tensors[input_name]['inputs']:
@@ -102,7 +102,7 @@ class OnnxConverter:
                         outbounds.append(succ_succ.name)
                 if node.op_type == SLICE_TYPE:
                     for tensor_name in self._get_sibling_slice_output_tensors(node):
-                        outbounds.append(tensor_name)    
+                        outbounds.append(tensor_name)
                 result[node.name] = {
                     "attr": self.fetch_attrs(node),
                     "outbounds": outbounds,

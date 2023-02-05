@@ -9,6 +9,7 @@ logging = logging.getLogger("nn-Meter")
 __user_config_folder__ = os.path.expanduser('~/.nn_meter/config')
 __registry_cfg_filename__ = 'registry.yaml'
 
+
 def list_backends_cli():
     from nn_meter.builder.backends import list_backends
     backends = list_backends()
@@ -45,7 +46,7 @@ def create_workspace_cli(args):
     """create a workspace folder and copy the corresponding config file to the workspace
     """
     from nn_meter.builder.config_manager import copy_to_workspace
-    
+
     if args.tflite_workspace:
         backend_type = "tflite"
         workspace_path = args.tflite_workspace
@@ -70,7 +71,7 @@ def create_workspace_cli(args):
             try:
                 backend_config = registry_modules["backends"][backend_name]["defaultConfigFile"]
                 copy_to_workspace(backend_type, workspace_path, backend_config)
-            except:
+            except BaseException:
                 raise ValueError(f"Create workspace failed. Please check the backend registration information.")
         else:
             raise ValueError(f"Create workspace failed. Please check the backend registration information.")
@@ -78,7 +79,8 @@ def create_workspace_cli(args):
         logging.keyinfo('please run "nn-meter create --help" to see guidance.')
         return
 
-    logging.keyinfo(f"Workspace {os.path.abspath(workspace_path)} for {backend_type} platform has been created. " \
+    logging.keyinfo(
+        f"Workspace {os.path.abspath(workspace_path)} for {backend_type} platform has been created. "
         f"Users could edit experiment config in {os.path.join(os.path.abspath(workspace_path), 'configs/')}.")
 
 

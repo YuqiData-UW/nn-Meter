@@ -2,8 +2,9 @@
 # Licensed under the MIT license.
 
 try:
-    import pkg_resources  # part of setuptools
-    __version__ = pkg_resources.require("nn-meter")[0].version
+from logging import Formatter, StreamHandler
+import pkg_resources  # part of setuptools
+__version__ = pkg_resources.require("nn-meter")[0].version
 except ModuleNotFoundError:
     __version__ = 'UNKNOWN'
 
@@ -39,7 +40,6 @@ logging.addLevelName(logging.RESULT, 'RESULT')
 logging.Logger.result = partialmethod(logging.Logger.log, logging.RESULT)
 logging.result = partial(logging.log, logging.RESULT)
 
-from logging import Formatter, StreamHandler
 handler = StreamHandler(sys.stdout)
 handler.setFormatter(Formatter("(nn-Meter) %(message)s"))
 logger = logging.getLogger("nn-Meter")

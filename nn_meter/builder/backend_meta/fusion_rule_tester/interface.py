@@ -39,7 +39,7 @@ class BaseTestCase:
                         'model': model,
                         'shapes': shapes
                     }
-                except:
+                except BaseException:
                     from .utils import generate_single_model
                     model, shapes = generate_single_model(op, self.input_shape, self.config, self.implement)
                     testcase[op] = {
