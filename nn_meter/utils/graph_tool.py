@@ -17,14 +17,21 @@ class ModelGraph:
         else:
             self.graph = {}
 
-    def node(self, name, inbound_nodes=None):
+    def node(self, name, inbound_nodes=None, valid_node_names=set()):
         self.graph[name] = {}
         if IS_TF2:
-            inbound_nodes = [n[1:] + "/resource" if n[0]
-                             == "^" and n.endswith("ReadVariableOp") else n for n in inbound_nodes]
+            def _map_node_name(node_name: str, valid_node_names: set):
+                if node_name[0] == "^" and node_name.endswith("ReadVariableOp"):
+                    if (node_name[1:] + "/resource") in valid_node_names:
+                        return node_name[1:] + "/resource"
+                    elif node_name[1:] in valid_node_names:
+                        return node_name[1:]
+                else:
+                    return node_name
+            inbound_nodes = [_map_node_name(n, valid_node_names) for n in inbound_nodes]
         if inbound_nodes is not None:
             self.graph[name]["inbounds"] = inbound_nodes
-            for node in inbound_nodes:
+            for node in self.graph[name]["inbounds"]:
                 if node not in self.graph.keys():
                     self.graph[node] = {}
                 if "outbounds" not in self.graph[node].keys():
@@ -210,7 +217,8 @@ class ModelGraph:
                     dot.edge(
                         node,
                         key,
-                        label=", ".join(str(x) for x in value["attr"]["output_shape"]),
+                        label=", ".join(str(x)
+                                        for x in value["attr"]["output_shape"]),
                     )
         dot.render("graph.gv", view=False)
 
@@ -219,7 +227,8 @@ class ModelGraph:
         import networkx as nx
 
         plt.subplot(121)
-        nx.draw(self.get_networkx_graph(), with_labels=True, font_weight="bold")
+        nx.draw(self.get_networkx_graph(),
+                with_labels=True, font_weight="bold")
         plt.show()
 
     def get_networkx_graph(self):
@@ -227,7 +236,8 @@ class ModelGraph:
 
         G = nx.MultiDiGraph()
         for (key, value) in self.graph.items():
-            G.add_node(key, type=value["attr"]["type"], **value["attr"]["attr"])
+            G.add_node(key, type=value["attr"]
+                       ["type"], **value["attr"]["attr"])
             if "inbounds" in value.keys():
                 for node in value["inbounds"]:
                     G.add_edge(node, key)
@@ -266,7 +276,8 @@ class ModelGraph:
                 and len(self.graph[inbound]["inbounds"]) == 1
             ):
                 if (
-                    self.graph[self.graph[inbound]["inbounds"][0]]["attr"]["type"]
+                    self.graph[self.graph[inbound]
+                               ["inbounds"][0]]["attr"]["type"]
                     == "Const"
                 ):
                     weight_roots.append(inbound)
@@ -294,14 +305,16 @@ class ModelGraph:
             for op_entry in sub_fetch_graph.keys():
                 # --- Repleace dummy op ---
                 if (
-                    sub_graph.get_graph()[sub_fetch_graph[op_entry]]["attr"]["type"]
+                    sub_graph.get_graph()[
+                        sub_fetch_graph[op_entry]]["attr"]["type"]
                     == "dummy"
                 ):
                     dummy_op = tar_sub_graphs[-1].node.add()
                     dummy_op.op = "Identity"
                     dummy_op.name = sub_fetch_graph[op_entry]
                     dummy_op.input.extend(
-                        sub_graph.get_graph()[sub_fetch_graph[op_entry]]["inbounds"]
+                        sub_graph.get_graph()[
+                            sub_fetch_graph[op_entry]]["inbounds"]
                     )
                     dummy_op.attr["T"].type = 1
                 else:
@@ -312,7 +325,8 @@ class ModelGraph:
 
                     del node.input[:]
                     node.input.extend(
-                        sub_graph.get_graph()[sub_fetch_graph[op_entry]]["inbounds"]
+                        sub_graph.get_graph()[
+                            sub_fetch_graph[op_entry]]["inbounds"]
                     )
                     # --- Fetch the constant op ---
                     roots, nodes = self.find_weight_roots(op_entry)

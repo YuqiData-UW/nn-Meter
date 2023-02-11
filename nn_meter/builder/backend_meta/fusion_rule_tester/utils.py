@@ -165,8 +165,6 @@ def save_model(model, model_path, implement):
         return model_path + '.onnx'
 
     else:
-        import pdb
-        pdb.set_trace()
         raise NotImplementedError('You must choose one implementation of kernel from "tensorflow" or "pytorch"')
 
 

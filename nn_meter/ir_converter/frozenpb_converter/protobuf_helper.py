@@ -56,17 +56,28 @@ class ProtobufHelper:
             A single node in graph IR.
         """
         if IS_TF2:
-            weight_name = []
-            weight_op = node["attr"]["name"] + "/ReadVariableOp/resource"
+            weight_name = set()
+            
+            weight_op = node["attr"]["name"]
+            if (node["attr"]["name"] + "/ReadVariableOp/resource" in graph.keys()):
+                # model converted from tf2 to tf1
+                weight_op = node["attr"]["name"] + "/ReadVariableOp/resource"
+            elif (node["attr"]["name"] + "/ReadVariableOp" in graph.keys()):
+                # model converted from torch to tf2 to tf1
+                weight_op = node["attr"]["name"] + "/ReadVariableOp"
             if (
-                weight_op in graph.keys()
-                and graph[weight_op]["attr"]["type"] != "Identity"
+                graph[weight_op]["attr"]["type"] != "Identity"
             ):
                 logging.info(
                     "Find node %s with its weight op %s."
                     % (node["attr"]["name"], weight_op)
                 )
-                weight_name.append(weight_op)
+                weight_name.add(weight_op)
+            else:
+                logging.warn(
+                    "Failed to find node %s with its weight op %s."
+                    % (node["attr"]["name"], weight_op)
+                )
 
             return weight_name
         else:
@@ -90,7 +101,7 @@ class ProtobufHelper:
                 ],
             }
 
-            weight_name = []
+            weight_name = set()
             if node["attr"]["type"] in NODE_WEIGHT_LUT.keys():
                 for lut_lamba in NODE_WEIGHT_LUT[node["attr"]["type"]]:
                     weight_op = lut_lamba(node["attr"]["name"])
@@ -102,7 +113,7 @@ class ProtobufHelper:
                             "Find node %s with its weight op %s."
                             % (node["attr"]["name"], weight_op)
                         )
-                        weight_name.append(weight_op)
+                        weight_name.add(weight_op)
 
             return weight_name
 

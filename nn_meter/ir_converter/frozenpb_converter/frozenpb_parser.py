@@ -271,9 +271,10 @@ class FrozenPbParser:
         model_graph : ModelGraph
             The Graph IR holder.
         """
-
+        valid_node_names = {node.name for node in tqdm(self.graph.node)}
         for node in tqdm(self.graph.node):
-            model_graph.node(str(node.name), list(map(str, node.input)))
+            model_graph.node(str(node.name), list(
+                map(str, node.input)), valid_node_names)
             model_graph.set_node_attr(
                 node.name,
                 {
