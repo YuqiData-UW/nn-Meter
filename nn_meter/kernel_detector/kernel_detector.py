@@ -32,7 +32,8 @@ class KernelDetector:
             if kernel is not None:
                 kernels.append(kernel)
 
-        self._fetch_connections(kernels)
+        # Didn't see a usage of self._fetch_connections
+        # self._fetch_connections(kernels)
         return kernels
 
     def _fetch_connections(self, kernels):

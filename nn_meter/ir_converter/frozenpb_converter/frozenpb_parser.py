@@ -6,7 +6,8 @@ import logging
 from tqdm import tqdm
 from .protobuf_helper import ProtobufHelper
 from nn_meter.utils.import_package import try_import_tensorflow
-from ...utils.utils import IS_TF2
+from ...utils.utils import IS_TF2, DataFormat
+from nn_meter.utils.graph_tool import ModelGraph
 
 logging = logging.getLogger("nn-Meter")
 
@@ -127,7 +128,7 @@ class FrozenPbParser:
 
         model_graph.refresh()
 
-    def fetch_attr_to_dict(self, node):
+    def fetch_attr_to_dict(self, node, is_nchw: bool):
         """
         Tensorflow store some of the attributes as a node connect to the tensor.
         We fetch the attribute from those noed to a dict.
@@ -186,6 +187,9 @@ class FrozenPbParser:
             if attr_name in list_i_nodes:
                 attr_dict[attr_name] = [int(a)
                                         for a in node.attr[attr_name].list.i]
+                if is_nchw and len(attr_dict[attr_name]) == 4:
+                    attr_dict[attr_name] = [attr_dict[attr_name][0], attr_dict[attr_name]
+                                            [2], attr_dict[attr_name][3], attr_dict[attr_name][1]]
                 continue
 
             if attr_name in str_nodes:
@@ -203,6 +207,8 @@ class FrozenPbParser:
                 shape = []
                 for dim in node.attr[attr_name].shape.dim:
                     shape.append(dim.size)
+                if is_nchw:
+                    shape = [shape[0], shape[3], shape[2], shape[1]]
                 attr_dict["shape"] = list(map(int, shape))
                 continue
 
@@ -251,16 +257,27 @@ class FrozenPbParser:
                         node.name
                     ):
                         for attr_name in target_node.attr.keys():
-                            # TODO: TF2's node doesn't have these string in node name
                             if check_copy_attr(attr_name):
+                                value = attr_as_node[node.op]["node_value"](
+                                    target_node.attr[attr_name].tensor
+                                )
+                                if (is_nchw and attr_as_node[node.op]["attr_name"] == "constant" and len(value) == 8):
+                                    value = value[:2] + value[4:] + value[2:4]
+                                elif (is_nchw and node.op == "Mean" and len(value) == 2):
+                                    value = [v - 1 for v in value]
+                                elif (is_nchw and attr_as_node[node.op]["attr_name"] == "axis"):
+                                    value = [v + 2 for v in value]
                                 attr_dict[
                                     attr_as_node[node.op]["attr_name"]
-                                ] = copy.deepcopy(
-                                    attr_as_node[node.op]["node_value"](
-                                        target_node.attr[attr_name].tensor
-                                    )
-                                )
+                                ] = copy.deepcopy(value)
         return attr_dict
+
+    def check_data_format(self, model_graph: ModelGraph):
+        for node in self.graph.node:
+            for attr_name in node.attr.keys():
+                if attr_name == "data_format" and (node.attr[attr_name].s == DataFormat.NCHW.value or node.attr[attr_name].s == DataFormat.NCHW.value.encode("ascii")):
+                    model_graph.set_data_format(DataFormat.NCHW)
+                    return
 
     def parse_graph(self, model_graph):
         """
@@ -272,6 +289,7 @@ class FrozenPbParser:
             The Graph IR holder.
         """
         valid_node_names = {node.name for node in tqdm(self.graph.node)}
+        self.check_data_format(model_graph)
         for node in tqdm(self.graph.node):
             model_graph.node(str(node.name), list(
                 map(str, node.input)), valid_node_names)
@@ -281,6 +299,6 @@ class FrozenPbParser:
                     "name": str(node.name),
                     "type": str(node.op),
                     "output_shape": [],  # This will be filled later
-                    "attr": self.fetch_attr_to_dict(node),
+                    "attr": self.fetch_attr_to_dict(node, model_graph.get_data_format() == DataFormat.NCHW),
                 },
             )

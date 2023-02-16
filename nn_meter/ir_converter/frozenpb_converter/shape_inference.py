@@ -57,6 +57,10 @@ class ShapeInference:
         "Elu",
         "Softmax",
         "NoOp",
+
+        # TF2
+        "ExpandDims",
+        "Shape"
     ]
 
     @staticmethod
@@ -151,7 +155,7 @@ class ShapeInference:
                 (ph.get_h(input_shape) - ph.get_h(k_size) + 1) / ph.get_h(strides)
             )
             outw = math.ceil(
-                (ph.get_h(input_shape) - ph.get_h(k_size) + 1) / ph.get_w(strides)
+                (ph.get_w(input_shape) - ph.get_w(k_size) + 1) / ph.get_w(strides)
             )
 
             pad_size = [0, 0, 0, 0]
@@ -209,7 +213,10 @@ class ShapeInference:
         if IS_TF2:
             in_shape = in_shape[0]
             padding_node = graph[node["attr"]["name"] + "/paddings"]
-            paddings = np.array(padding_node["attr"]["attr"]["constant"]).reshape(
+            paddings = np.array(padding_node["attr"]["attr"]["constant"])
+            # TODO: this is a tmp solution to ignore small paddings
+            paddings = np.array([p if p > 1 else 0 for p in paddings])
+            paddings = paddings.reshape(
                 padding_node["attr"]["attr"]["tensor_shape"])
         else:
             paddings = node["attr"]["attr"]["paddings"]
@@ -534,7 +541,6 @@ class ShapeInference:
 
         k_size = weight_shape[:2]
         cin = weight_shape[2]
-
         if not IS_TF2 and node["attr"]["attr"]["strides"][::3] != [1, 1]:
             logging.warning(
                 "Invalid strides %s of node %s."
@@ -680,8 +686,9 @@ class ShapeInference:
         )
 
         input_node = [x for x in node["inbounds"] if x not in weight_node]
-        input_node = [x for x in input_node if graph[x]
-                      ["attr"]["type"] != "Identity"]
+        if len(input_node) > 1:
+            input_node = [x for x in input_node if graph[x]
+                          ["attr"]["type"] != "Identity"]
         if len(input_node) != 1:
             logging.warning("Failed to get input node of %s." %
                             (node["attr"]["name"]))
@@ -773,6 +780,10 @@ class ShapeInference:
                 "Input shape %s and output shape %s not matched for %s."
                 % (str(input_shape), str(exp_output_shape), node["attr"]["name"])
             )
+
+        if IS_TF2 and node["attr"]["name"] + "/shape" in graph and graph[node["attr"]["name"] + "/shape"]["attr"]["attr"]["constant"] == [[-1]]:
+            # TODO:
+            exp_output_shape = [input_shape[0], exp_output_shape_elements]
 
         return [input_shape], [exp_output_shape]
 

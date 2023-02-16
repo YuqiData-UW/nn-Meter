@@ -20,9 +20,9 @@ class ProtobufHelper:
         """
         l = len(x)
         if l == 4:
-            return x[1]
+            return x[2]
         if l == 2:
-            return x[0]
+            return x[1]
         return None
 
     @staticmethod
@@ -38,9 +38,9 @@ class ProtobufHelper:
         """
         l = len(x)
         if l == 4:
-            return x[2]
-        if l == 2:
             return x[1]
+        if l == 2:
+            return x[0]
         return None
 
     @staticmethod
@@ -57,7 +57,7 @@ class ProtobufHelper:
         """
         if IS_TF2:
             weight_name = set()
-            
+
             weight_op = node["attr"]["name"]
             if (node["attr"]["name"] + "/ReadVariableOp/resource" in graph.keys()):
                 # model converted from tf2 to tf1
@@ -94,7 +94,8 @@ class ProtobufHelper:
                     lambda x: x.replace("/FusedBatchNormV3", "/gamma"),
                     lambda x: x.replace("/FusedBatchNormV3", "/beta"),
                     lambda x: x.replace("/FusedBatchNormV3", "/moving_mean"),
-                    lambda x: x.replace("/FusedBatchNormV3", "/moving_variance"),
+                    lambda x: x.replace("/FusedBatchNormV3",
+                                        "/moving_variance"),
                 ],
                 "MatMul": [
                     lambda x: x.replace("/MatMul", "/weight"),

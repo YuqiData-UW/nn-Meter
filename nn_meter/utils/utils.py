@@ -3,6 +3,7 @@
 import os
 import json
 import requests
+from enum import Enum
 import numpy as np
 from tqdm import tqdm
 from zipfile import ZipFile
@@ -46,3 +47,8 @@ class NumpyEncoder(json.JSONEncoder):
 
 
 IS_TF2 = True
+
+
+class DataFormat(str, Enum):
+    NHWC = "NHWC"  # Default
+    NCHW = "NCHW"

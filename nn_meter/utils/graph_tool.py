@@ -3,7 +3,7 @@
 import copy
 import json
 import logging
-from .utils import NumpyEncoder
+from .utils import NumpyEncoder, DataFormat
 from ..utils.utils import IS_TF2
 logging = logging.getLogger("nn-Meter")
 
@@ -16,6 +16,7 @@ class ModelGraph:
             self.graph = copy.deepcopy(graph)
         else:
             self.graph = {}
+        self.data_format = DataFormat.NHWC
 
     def node(self, name, inbound_nodes=None, valid_node_names=set()):
         self.graph[name] = {}
@@ -28,7 +29,8 @@ class ModelGraph:
                         return node_name[1:]
                 else:
                     return node_name
-            inbound_nodes = [_map_node_name(n, valid_node_names) for n in inbound_nodes]
+            inbound_nodes = [_map_node_name(
+                n, valid_node_names) for n in inbound_nodes]
         if inbound_nodes is not None:
             self.graph[name]["inbounds"] = inbound_nodes
             for node in self.graph[name]["inbounds"]:
@@ -353,3 +355,9 @@ class ModelGraph:
                 sort_keys=True,
                 cls=NumpyEncoder,
             )
+
+    def get_data_format(self):
+        return self.data_format
+
+    def set_data_format(self, data_format: str):
+        self.data_format = data_format
